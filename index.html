@@ -1,372 +1,837 @@
-import { useState, useEffect } from "react";
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단순업무 인력 최적화 보고</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #111827;
+    --ink-light: #374151;
+    --ink-muted: #6B7280;
+    --ink-faint: #9CA3AF;
+    --surface: #FAFAF9;
+    --paper: #FFFFFF;
+    --rule: #E5E5E4;
+    --rule-light: #F3F3F2;
+    --accent: #1E3A5F;
+    --accent-light: #EEF2F7;
 
+    --outsource: #B91C1C;
+    --outsource-bg: #FEF2F2;
+    --outsource-border: #FECACA;
+
+    --freelance: #6D28D9;
+    --freelance-bg: #F5F3FF;
+    --freelance-border: #DDD6FE;
+
+    --contract: #B45309;
+    --contract-bg: #FFFBEB;
+    --contract-border: #FDE68A;
+
+    --auto: #0F766E;
+    --auto-bg: #F0FDFA;
+    --auto-border: #99F6E4;
+
+    --marketing: #1D4ED8;
+    --domestic: #047857;
+    --global: #B45309;
+    --ai: #7C3AED;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    background: var(--ink);
+    color: white;
+    padding: 72px 60px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 420px; height: 100%;
+    background: linear-gradient(135deg, rgba(30,58,95,0.5) 0%, transparent 70%);
+  }
+  .cover-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .cover h1 {
+    font-family: 'Playfair Display', 'Noto Sans KR', serif;
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.25;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .cover-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 300;
+    max-width: 520px;
+    line-height: 1.7;
+  }
+  .cover-meta {
+    margin-top: 36px;
+    display: flex;
+    gap: 40px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    font-weight: 400;
+  }
+  .cover-meta span { color: rgba(255,255,255,0.7); font-weight: 600; }
+
+  /* ── Container ── */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+  }
+
+  /* ── Stats Row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 52px;
+  }
+  .stat-card {
+    background: var(--paper);
+    padding: 28px 24px;
+    text-align: center;
+  }
+  .stat-card .stat-type {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .stat-card .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-card .stat-total {
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+  .stat-card.outsource .stat-type { color: var(--outsource); }
+  .stat-card.outsource .stat-num { color: var(--outsource); }
+  .stat-card.freelance .stat-type { color: var(--freelance); }
+  .stat-card.freelance .stat-num { color: var(--freelance); }
+  .stat-card.contract .stat-type { color: var(--contract); }
+  .stat-card.contract .stat-num { color: var(--contract); }
+  .stat-card.auto .stat-type { color: var(--auto); }
+  .stat-card.auto .stat-num { color: var(--auto); }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 44px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .section-marker {
+    width: 4px;
+    height: 24px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+  .section-count {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 3px;
+    margin-left: auto;
+  }
+
+  .outsource-section .section-marker { background: var(--outsource); }
+  .outsource-section .section-header h2 { color: var(--outsource); }
+  .outsource-section .section-count { background: var(--outsource-bg); color: var(--outsource); }
+
+  .freelance-section .section-marker { background: var(--freelance); }
+  .freelance-section .section-header h2 { color: var(--freelance); }
+  .freelance-section .section-count { background: var(--freelance-bg); color: var(--freelance); }
+
+  .contract-section .section-marker { background: var(--contract); }
+  .contract-section .section-header h2 { color: var(--contract); }
+  .contract-section .section-count { background: var(--contract-bg); color: var(--contract); }
+
+  .auto-section .section-marker { background: var(--auto); }
+  .auto-section .section-header h2 { color: var(--auto); }
+  .auto-section .section-count { background: var(--auto-bg); color: var(--auto); }
+
+  /* ── Table ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--paper);
+  }
+  .data-table thead th {
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--ink-muted);
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .data-table tbody tr {
+    border-bottom: 1px solid var(--rule-light);
+    transition: background 0.15s;
+  }
+  .data-table tbody tr:last-child { border-bottom: none; }
+  .data-table tbody tr:hover { background: #FAFAF9; }
+  .data-table td {
+    padding: 14px 18px;
+    vertical-align: middle;
+  }
+  .data-table .task-name {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .data-table .task-desc {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  .team-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .team-badge.marketing { background: #EFF6FF; color: var(--marketing); }
+  .team-badge.domestic { background: #ECFDF5; color: var(--domestic); }
+  .team-badge.global { background: #FFFBEB; color: var(--global); }
+  .team-badge.ai { background: #F5F3FF; color: var(--ai); }
+
+  .freq-tag {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  .note-cell {
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+
+  /* ── Unselected ── */
+  .unselected-section {
+    margin-top: 52px;
+    padding-top: 32px;
+    border-top: 1px solid var(--rule);
+  }
+  .unselected-section .section-header {
+    border-bottom-color: var(--rule);
+  }
+  .unselected-section .section-marker { background: var(--ink-faint); }
+  .unselected-section h2 { color: var(--ink-muted) !important; }
+  .unselected-section .section-count { background: var(--rule-light); color: var(--ink-faint); }
+
+  .data-table.muted tbody tr { opacity: 0.55; }
+  .data-table.muted tbody tr:hover { opacity: 0.8; }
+
+  /* ── Completion ── */
+  .completion-banner {
+    text-align: center;
+    padding: 28px;
+    border: 1px solid var(--auto-border);
+    background: var(--auto-bg);
+    border-radius: 6px;
+    margin-top: 52px;
+  }
+  .completion-banner p {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--auto);
+  }
+
+  /* ── Interactive Controls (Selection Mode) ── */
+  .mode-toggle {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 28px;
+    gap: 8px;
+  }
+  .mode-btn {
+    padding: 8px 20px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.15s;
+  }
+  .mode-btn:hover { border-color: var(--ink-muted); color: var(--ink); }
+  .mode-btn.active {
+    background: var(--ink);
+    color: white;
+    border-color: var(--ink);
+  }
+  .mode-btn.save-btn {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .mode-btn.save-btn:hover { opacity: 0.9; }
+
+  /* ── Selection UI ── */
+  .select-view .team-tabs {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .team-tab {
+    flex: 1;
+    padding: 14px 12px;
+    background: var(--paper);
+    border: none;
+    border-right: 1px solid var(--rule);
+    cursor: pointer;
+    text-align: center;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.15s;
+  }
+  .team-tab:last-child { border-right: none; }
+  .team-tab .tab-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-muted);
+  }
+  .team-tab .tab-count {
+    font-size: 10px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  .team-tab.active {
+    background: var(--ink);
+  }
+  .team-tab.active .tab-label { color: white; }
+  .team-tab.active .tab-count { color: rgba(255,255,255,0.5); }
+
+  .task-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .task-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 1px 8px rgba(30,58,95,0.08);
+  }
+  .task-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .task-info { flex: 1; }
+  .task-info .t-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .task-info .t-meta { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+  .task-info .t-freq {
+    display: inline-block;
+    font-size: 10px;
+    background: var(--rule-light);
+    color: var(--ink-muted);
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-left: 8px;
+    font-weight: 500;
+  }
+
+  .type-btns {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .type-btn {
+    padding: 6px 14px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink-muted);
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.15s;
+  }
+  .type-btn:hover { border-color: var(--ink-muted); }
+  .type-btn.sel-outsource { background: var(--outsource-bg); color: var(--outsource); border-color: var(--outsource-border); font-weight: 700; }
+  .type-btn.sel-freelance { background: var(--freelance-bg); color: var(--freelance); border-color: var(--freelance-border); font-weight: 700; }
+  .type-btn.sel-contract { background: var(--contract-bg); color: var(--contract); border-color: var(--contract-border); font-weight: 700; }
+  .type-btn.sel-auto { background: var(--auto-bg); color: var(--auto); border-color: var(--auto-border); font-weight: 700; }
+
+  .task-note {
+    margin-top: 10px;
+  }
+  .task-note input {
+    width: 100%;
+    padding: 7px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--ink-light);
+    outline: none;
+    background: var(--surface);
+    transition: border-color 0.15s;
+  }
+  .task-note input:focus { border-color: var(--ink-muted); }
+  .task-note input::placeholder { color: var(--ink-faint); }
+
+  .progress-bar-wrap {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--ink);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .progress-num {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--ink);
+    font-family: 'Playfair Display', serif;
+  }
+
+  .sel-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-left: 6px;
+  }
+  .sel-badge.outsource { background: var(--outsource-bg); color: var(--outsource); }
+  .sel-badge.freelance { background: var(--freelance-bg); color: var(--freelance); }
+  .sel-badge.contract { background: var(--contract-bg); color: var(--contract); }
+  .sel-badge.auto { background: var(--auto-bg); color: var(--auto); }
+
+  .toast-msg {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    background: var(--ink);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: all 0.3s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .toast-msg.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 720px) {
+    .cover { padding: 48px 28px 40px; }
+    .cover h1 { font-size: 26px; }
+    .container { padding: 28px 16px 60px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .type-btns { flex-wrap: wrap; }
+    .cover-meta { flex-direction: column; gap: 8px; }
+    .team-tabs { flex-wrap: wrap; }
+    .team-tab { min-width: 48%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-label">Internal Operations Report</div>
+  <h1>단순업무 인력 최적화 보고</h1>
+  <p class="cover-sub">
+    각 팀 반복·단순 업무에 대한 인력 운용 방식 분류 현황.<br>
+    외주 · 프리랜서 · 계약직 · 자동화 네 가지 유형별 최적 배치 검토.
+  </p>
+  <div class="cover-meta">
+    <div>대상 부서 <span>4개 팀</span></div>
+    <div>분류 대상 <span id="coverTotal">33개 업무</span></div>
+    <div>작성일 <span id="coverDate"></span></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btnSelect" onclick="switchView('select')">분류 입력</button>
+    <button class="mode-btn" id="btnSummary" onclick="switchView('summary')">요약 보고</button>
+    <button class="mode-btn save-btn" id="btnSave" onclick="saveData()">저장</button>
+  </div>
+
+  <!-- ═══ SELECT VIEW ═══ -->
+  <div id="selectView" class="select-view">
+    <div class="team-tabs" id="teamTabs"></div>
+    <div id="taskList"></div>
+    <div class="progress-bar-wrap">
+      <span class="progress-label">전체 분류 진행률</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-num" id="progressNum">0/33</span>
+    </div>
+  </div>
+
+  <!-- ═══ SUMMARY VIEW ═══ -->
+  <div id="summaryView" style="display:none;"></div>
+</div>
+
+<div class="toast-msg" id="toast"></div>
+
+<script>
 const TEAMS = {
   marketing: {
-    label: "마케팅팀", color: "#3B82F6", light: "#EFF6FF", border: "#BFDBFE",
+    label: "마케팅팀", key: "marketing",
     tasks: [
-      { id: "m1", name: "퍼포먼스 효율 데이터 정리", desc: "광고 채널별 성과 지표 수집 및 정리", freq: "주간" },
-      { id: "m2", name: "SNS 콘텐츠별 데이터 정리", desc: "채널별 좋아요·공유·도달 데이터 수집", freq: "주간" },
-      { id: "m3", name: "기안 및 지출결의서 작성", desc: "예산 집행 관련 내부 결재 서류 작성", freq: "수시" },
-      { id: "m4", name: "주간보고 작성", desc: "주간 마케팅 성과 보고서 작성", freq: "주간" },
-      { id: "m5", name: "SNS 반응 보고", desc: "SNS 댓글·반응 모니터링 및 보고", freq: "주간" },
+      { id:"m1", name:"퍼포먼스 효율 데이터 정리", desc:"광고 채널별 성과 지표 수집 및 정리", freq:"주간" },
+      { id:"m2", name:"SNS 콘텐츠별 데이터 정리", desc:"채널별 좋아요·공유·도달 데이터 수집", freq:"주간" },
+      { id:"m3", name:"기안 및 지출결의서 작성", desc:"예산 집행 관련 내부 결재 서류 작성", freq:"수시" },
+      { id:"m4", name:"주간보고 작성", desc:"주간 마케팅 성과 보고서 작성", freq:"주간" },
+      { id:"m5", name:"SNS 반응 보고", desc:"SNS 댓글·반응 모니터링 및 보고", freq:"주간" },
     ],
   },
   domestic: {
-    label: "국내 플랫폼 사업팀", color: "#10B981", light: "#ECFDF5", border: "#A7F3D0",
+    label: "국내 플랫폼 사업팀", key: "domestic",
     tasks: [
-      { id: "d1", name: "CS 결제 해지·환불 처리", desc: "결제 관련 고객 문의 답변 및 처리", freq: "일간" },
-      { id: "d2", name: "이용 정책 관련 답변 처리", desc: "서비스 이용 정책 문의 응대", freq: "일간" },
-      { id: "d3", name: "기관 신고 탈퇴 민원 처리", desc: "기관 관련 신고·탈퇴 민원 대응", freq: "수시" },
-      { id: "d4", name: "굿즈 발주서 작성", desc: "굿즈 제작 발주 관련 서류 작성", freq: "월간" },
-      { id: "d5", name: "사이트 모니터링(오전/오후)", desc: "서비스 이상 유무 정기 점검", freq: "일2회" },
-      { id: "d6", name: "군인요금제 승인 처리", desc: "군인 인증 후 요금제 승인 작업", freq: "수시" },
-      { id: "d7", name: "메인 배너 배치 요청", desc: "북스 메인 배너 파일·일시·링크 등록", freq: "수시" },
-      { id: "d8", name: "기안/지출결의서 작성", desc: "예산 집행 관련 내부 결재 서류 작성", freq: "수시" },
-      { id: "d9", name: "DB 데이터 추출", desc: "운영 DB에서 필요 데이터 추출", freq: "수시" },
+      { id:"d1", name:"CS 결제 해지·환불 처리", desc:"결제 관련 고객 문의 답변 및 처리", freq:"일간" },
+      { id:"d2", name:"이용 정책 관련 답변 처리", desc:"서비스 이용 정책 문의 응대", freq:"일간" },
+      { id:"d3", name:"기관 신고 탈퇴 민원 처리", desc:"기관 관련 신고·탈퇴 민원 대응", freq:"수시" },
+      { id:"d4", name:"굿즈 발주서 작성", desc:"굿즈 제작 발주 관련 서류 작성", freq:"월간" },
+      { id:"d5", name:"사이트 모니터링(오전/오후)", desc:"서비스 이상 유무 정기 점검", freq:"일2회" },
+      { id:"d6", name:"군인요금제 승인 처리", desc:"군인 인증 후 요금제 승인 작업", freq:"수시" },
+      { id:"d7", name:"메인 배너 배치 요청", desc:"북스 메인 배너 파일·일시·링크 등록", freq:"수시" },
+      { id:"d8", name:"기안/지출결의서 작성", desc:"예산 집행 관련 내부 결재 서류 작성", freq:"수시" },
+      { id:"d9", name:"DB 데이터 추출", desc:"운영 DB에서 필요 데이터 추출", freq:"수시" },
     ],
   },
   global: {
-    label: "글로벌팀", color: "#F59E0B", light: "#FFFBEB", border: "#FDE68A",
+    label: "글로벌팀", key: "global",
     tasks: [
-      { id: "g1", name: "소설 번역용 단어집 생성", desc: "번역 일관성을 위한 용어집 제작", freq: "작품당" },
-      { id: "g2", name: "AI 번역 회차 제목·내용 검수", desc: "AI 번역 결과물 품질 검수 (외주 진행 중)", freq: "일간" },
-      { id: "g3", name: "에딧팅 회차 검수 및 업로드", desc: "편집 완료 회차 최종 확인 후 등록", freq: "일간" },
-      { id: "g4", name: "일별 데이터 모니터링", desc: "글로벌 서비스 일별 지표 확인", freq: "일간" },
-      { id: "g5", name: "작가·에딧터 송금", desc: "정산 대상자 송금 처리 (API 있으나 개발 미정)", freq: "월간" },
-      { id: "g6", name: "오리지널 콘텐츠·댓글 모니터링", desc: "오리지널 작품 반응 및 댓글 모니터링", freq: "일간" },
-      { id: "g7", name: "프리미엄 전환 작가 승인·정산 등록", desc: "프리미엄 전환 신청 검토 및 정산 정보 확인", freq: "수시" },
-      { id: "g8", name: "작품 메인 배너 세팅", desc: "노출 대상·일정 기반 배너 세팅 작업", freq: "수시" },
-      { id: "g9", name: "개별 데이터 추출", desc: "필요 데이터 건별 수동 추출", freq: "수시" },
-      { id: "g10", name: "기안/지출결의서 작성", desc: "예산 집행 관련 내부 결재 서류 작성", freq: "수시" },
+      { id:"g1", name:"소설 번역용 단어집 생성", desc:"번역 일관성을 위한 용어집 제작", freq:"작품당" },
+      { id:"g2", name:"AI 번역 회차 제목·내용 검수", desc:"AI 번역 결과물 품질 검수 (외주 진행 중)", freq:"일간" },
+      { id:"g3", name:"에딧팅 회차 검수 및 업로드", desc:"편집 완료 회차 최종 확인 후 등록", freq:"일간" },
+      { id:"g4", name:"일별 데이터 모니터링", desc:"글로벌 서비스 일별 지표 확인", freq:"일간" },
+      { id:"g5", name:"작가·에딧터 송금", desc:"정산 대상자 송금 처리 (API 있으나 개발 미정)", freq:"월간" },
+      { id:"g6", name:"오리지널 콘텐츠·댓글 모니터링", desc:"오리지널 작품 반응 및 댓글 모니터링", freq:"일간" },
+      { id:"g7", name:"프리미엄 전환 작가 승인·정산 등록", desc:"프리미엄 전환 신청 검토 및 정산 정보 확인", freq:"수시" },
+      { id:"g8", name:"작품 메인 배너 세팅", desc:"노출 대상·일정 기반 배너 세팅 작업", freq:"수시" },
+      { id:"g9", name:"개별 데이터 추출", desc:"필요 데이터 건별 수동 추출", freq:"수시" },
+      { id:"g10", name:"기안/지출결의서 작성", desc:"예산 집행 관련 내부 결재 서류 작성", freq:"수시" },
     ],
   },
   ai: {
-    label: "AI 아트사업팀", color: "#8B5CF6", light: "#F5F3FF", border: "#DDD6FE",
+    label: "AI 아트사업팀", key: "ai",
     tasks: [
-      { id: "a1", name: "AI 크레딧·계정 관리", desc: "AI 툴 크레딧 현황 확인 및 계정 관리", freq: "수시" },
-      { id: "a2", name: "AI 크리에이터 발굴·컨택", desc: "신규 크리에이터 리서치 및 초기 컨택", freq: "수시" },
-      { id: "a3", name: "AI 웹툰 콘티·후보정·식자", desc: "웹툰 제작 과정 중 반복 작업 부분", freq: "작품당" },
-      { id: "a4", name: "AI 영상 편집·음성·컷 분할", desc: "영상 제작 과정 중 반복 편집 작업", freq: "작품당" },
-      { id: "a5", name: "IP 검토 타부서 소통", desc: "IP 협의를 위한 내부 부서 간 커뮤니케이션", freq: "수시" },
-      { id: "a6", name: "AI 웹툰·영상 썸네일 작업", desc: "채널 등록용 썸네일 이미지 제작", freq: "작품당" },
-      { id: "a7", name: "작품 업로드 및 스케줄 관리", desc: "플랫폼 업로드 및 공개 일정 관리", freq: "수시" },
-      { id: "a8", name: "계약서 관리", desc: "계약서 파일 정리 및 현황 관리", freq: "수시" },
-      { id: "a9", name: "기안/지출결의서 작성", desc: "예산 집행 관련 내부 결재 서류 작성", freq: "수시" },
+      { id:"a1", name:"AI 크레딧·계정 관리", desc:"AI 툴 크레딧 현황 확인 및 계정 관리", freq:"수시" },
+      { id:"a2", name:"AI 크리에이터 발굴·컨택", desc:"신규 크리에이터 리서치 및 초기 컨택", freq:"수시" },
+      { id:"a3", name:"AI 웹툰 콘티·후보정·식자", desc:"웹툰 제작 과정 중 반복 작업 부분", freq:"작품당" },
+      { id:"a4", name:"AI 영상 편집·음성·컷 분할", desc:"영상 제작 과정 중 반복 편집 작업", freq:"작품당" },
+      { id:"a5", name:"IP 검토 타부서 소통", desc:"IP 협의를 위한 내부 부서 간 커뮤니케이션", freq:"수시" },
+      { id:"a6", name:"AI 웹툰·영상 썸네일 작업", desc:"채널 등록용 썸네일 이미지 제작", freq:"작품당" },
+      { id:"a7", name:"작품 업로드 및 스케줄 관리", desc:"플랫폼 업로드 및 공개 일정 관리", freq:"수시" },
+      { id:"a8", name:"계약서 관리", desc:"계약서 파일 정리 및 현황 관리", freq:"수시" },
+      { id:"a9", name:"기안/지출결의서 작성", desc:"예산 집행 관련 내부 결재 서류 작성", freq:"수시" },
     ],
   },
 };
 
 const TYPES = [
-  { key: "outsource", label: "외주", emoji: "🏢", color: "#EF4444", bg: "#FEF2F2", border: "#FECACA" },
-  { key: "contract", label: "계약직", emoji: "📋", color: "#F59E0B", bg: "#FFFBEB", border: "#FDE68A" },
-  { key: "freelance", label: "프리랜서", emoji: "🧑‍💻", color: "#8B5CF6", bg: "#F5F3FF", border: "#DDD6FE" },
-  { key: "internal", label: "내부유지", emoji: "🏠", color: "#6B7280", bg: "#F9FAFB", border: "#E5E7EB" },
+  { key:"outsource", label:"외주", cls:"outsource" },
+  { key:"freelance", label:"프리랜서", cls:"freelance" },
+  { key:"contract",  label:"계약직", cls:"contract" },
+  { key:"auto",      label:"자동화", cls:"auto" },
 ];
 
-const STORAGE_KEY = "task-selections-v2";
+const STORAGE_KEY = "task-opt-v3";
+let selections = {};
+let notes = {};
+let activeTeam = "marketing";
+let currentView = "select";
 
-export default function App() {
-  const [view, setView] = useState("select");
-  const [activeTeam, setActiveTeam] = useState("marketing");
-  const [selections, setSelections] = useState({});
-  const [notes, setNotes] = useState({});
-  const [savedAt, setSavedAt] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState(null);
-  const [loaded, setLoaded] = useState(false);
+// Init
+document.getElementById("coverDate").textContent = new Date().toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric" });
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const result = await window.storage.get(STORAGE_KEY);
-        if (result) {
-          const data = JSON.parse(result.value);
-          setSelections(data.selections || {});
-          setNotes(data.notes || {});
-          setSavedAt(data.savedAt || null);
-        }
-      } catch (_) {}
-      setLoaded(true);
-    })();
-  }, []);
-
-  const showToast = (msg, type = "success") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 2500);
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const now = new Date().toLocaleString("ko-KR");
-      await window.storage.set(STORAGE_KEY, JSON.stringify({ selections, notes, savedAt: now }));
-      setSavedAt(now);
-      showToast("✅ 저장 완료되었습니다");
-    } catch (_) {
-      showToast("❌ 저장 실패. 다시 시도해주세요.", "error");
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      selections = d.selections || {};
+      notes = d.notes || {};
     }
-    setSaving(false);
-  };
+  } catch(e) {}
+}
 
-  const setTaskType = (taskId, type) => {
-    setSelections(prev => ({ ...prev, [taskId]: prev[taskId] === type ? null : type }));
-  };
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ selections, notes, savedAt: new Date().toISOString() }));
+    showToast("저장이 완료되었습니다.");
+  } catch(e) {
+    showToast("저장에 실패했습니다.");
+  }
+}
 
-  const setNote = (taskId, val) => {
-    setNotes(prev => ({ ...prev, [taskId]: val }));
-  };
+function showToast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2200);
+}
 
-  const totalTasks = Object.values(TEAMS).reduce((a, t) => a + t.tasks.length, 0);
-  const selectedCount = Object.values(selections).filter(Boolean).length;
+function getTotalTasks() {
+  return Object.values(TEAMS).reduce((a,t) => a + t.tasks.length, 0);
+}
 
-  const summaryByType = TYPES.reduce((acc, t) => { acc[t.key] = []; return acc; }, {});
-  Object.entries(TEAMS).forEach(([, team]) => {
+function getSelectedCount() {
+  return Object.values(selections).filter(Boolean).length;
+}
+
+function switchView(v) {
+  currentView = v;
+  document.getElementById("btnSelect").classList.toggle("active", v==="select");
+  document.getElementById("btnSummary").classList.toggle("active", v==="summary");
+  document.getElementById("selectView").style.display = v==="select" ? "" : "none";
+  document.getElementById("summaryView").style.display = v==="summary" ? "" : "none";
+  if (v==="summary") renderSummary();
+}
+
+// ── Select View ──
+function renderTeamTabs() {
+  const wrap = document.getElementById("teamTabs");
+  wrap.innerHTML = "";
+  Object.entries(TEAMS).forEach(([key, team]) => {
+    const done = team.tasks.filter(t => selections[t.id]).length;
+    const btn = document.createElement("button");
+    btn.className = "team-tab" + (activeTeam===key ? " active" : "");
+    btn.innerHTML = `<div class="tab-label">${team.label}</div><div class="tab-count">${done} / ${team.tasks.length} 완료</div>`;
+    btn.onclick = () => { activeTeam = key; renderTeamTabs(); renderTaskList(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderTaskList() {
+  const team = TEAMS[activeTeam];
+  const wrap = document.getElementById("taskList");
+  wrap.innerHTML = "";
+  team.tasks.forEach(task => {
+    const sel = selections[task.id] || null;
+    const card = document.createElement("div");
+    card.className = "task-card" + (sel ? " selected" : "");
+
+    let badgeHTML = "";
+    if (sel) {
+      const t = TYPES.find(x => x.key === sel);
+      badgeHTML = `<span class="sel-badge ${t.cls}">${t.label}</span>`;
+    }
+
+    let btnsHTML = TYPES.map(t =>
+      `<button class="type-btn${sel===t.key ? " sel-"+t.cls : ""}" onclick="toggleType('${task.id}','${t.key}')">${t.label}</button>`
+    ).join("");
+
+    let noteHTML = sel
+      ? `<div class="task-note"><input type="text" value="${escHTML(notes[task.id]||"")}" placeholder="메모 (선정 이유, 담당자 예시 등)" onchange="setNote('${task.id}', this.value)"></div>`
+      : "";
+
+    card.innerHTML = `
+      <div class="task-card-top">
+        <div class="task-info">
+          <div class="t-name">${task.name}${badgeHTML}<span class="t-freq">${task.freq}</span></div>
+          <div class="t-meta">${task.desc}</div>
+        </div>
+        <div class="type-btns">${btnsHTML}</div>
+      </div>
+      ${noteHTML}
+    `;
+    wrap.appendChild(card);
+  });
+  updateProgress();
+}
+
+function toggleType(taskId, type) {
+  selections[taskId] = selections[taskId] === type ? null : type;
+  renderTeamTabs();
+  renderTaskList();
+}
+
+function setNote(taskId, val) {
+  notes[taskId] = val;
+}
+
+function escHTML(s) { return s.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+function updateProgress() {
+  const total = getTotalTasks();
+  const done = getSelectedCount();
+  document.getElementById("progressFill").style.width = (done/total*100)+"%";
+  document.getElementById("progressNum").textContent = done + "/" + total;
+}
+
+// ── Summary View ──
+function renderSummary() {
+  const total = getTotalTasks();
+  const wrap = document.getElementById("summaryView");
+
+  const byType = {};
+  TYPES.forEach(t => byType[t.key] = []);
+  Object.entries(TEAMS).forEach(([key, team]) => {
     team.tasks.forEach(task => {
-      const type = selections[task.id];
-      if (type) summaryByType[type].push({ ...task, teamLabel: team.label, teamColor: team.color });
+      const t = selections[task.id];
+      if (t) byType[t].push({ ...task, teamKey: key, teamLabel: team.label });
     });
   });
 
-  if (!loaded) return (
-    <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100vh", fontFamily:"'Apple SD Gothic Neo',sans-serif", color:"#6B7280" }}>
-      <div style={{ textAlign:"center" }}>
-        <div style={{ fontSize:32, marginBottom:12 }}>⚡</div>
-        <div>불러오는 중...</div>
+  let html = "";
+
+  // Stats
+  html += `<div class="stats-row">`;
+  TYPES.forEach(t => {
+    html += `<div class="stat-card ${t.cls}">
+      <div class="stat-type">${t.label}</div>
+      <div class="stat-num">${byType[t.key].length}</div>
+      <div class="stat-total">전체 ${total}개 중</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Sections
+  TYPES.forEach(t => {
+    const items = byType[t.key];
+    if (!items.length) return;
+    html += `<div class="section ${t.cls}-section">
+      <div class="section-header">
+        <div class="section-marker"></div>
+        <h2>${t.label}</h2>
+        <span class="section-count">${items.length}건</span>
       </div>
-    </div>
-  );
+      <table class="data-table"><thead><tr>
+        <th style="width:120px">소속</th><th>업무명</th><th style="width:70px">빈도</th><th style="width:200px">메모</th>
+      </tr></thead><tbody>`;
+    items.forEach(task => {
+      html += `<tr>
+        <td><span class="team-badge ${task.teamKey}">${task.teamLabel}</span></td>
+        <td><div class="task-name">${task.name}</div><div class="task-desc">${task.desc}</div></td>
+        <td><span class="freq-tag">${task.freq}</span></td>
+        <td class="note-cell">${notes[task.id] || "—"}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  });
 
-  const S = {
-    wrap: { fontFamily:"'Apple SD Gothic Neo','Malgun Gothic',sans-serif", minHeight:"100vh", background:"#F1F5F9", color:"#1E293B" },
-    header: { background:"#0F172A", padding:"0 24px", display:"flex", alignItems:"center", justifyContent:"space-between", height:56, position:"sticky", top:0, zIndex:100, boxShadow:"0 2px 12px rgba(0,0,0,0.25)" },
-    logo: { width:30, height:30, background:"linear-gradient(135deg,#6366F1,#8B5CF6)", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", fontSize:15 },
-    btnGhost: { padding:"5px 13px", borderRadius:7, border:"1px solid #334155", background:"transparent", color:"#CBD5E1", fontSize:12, cursor:"pointer", fontWeight:500 },
-    btnPrimary: { padding:"5px 16px", borderRadius:7, border:"none", background:"linear-gradient(135deg,#6366F1,#8B5CF6)", color:"#fff", fontSize:12, cursor:"pointer", fontWeight:700 },
-    sidebar: { width:210, background:"#fff", borderRight:"1px solid #E2E8F0", padding:"12px 0", flexShrink:0, overflowY:"auto" },
-    main: { flex:1, overflow:"auto", padding:"24px 28px" },
-  };
+  // Unselected
+  const unselected = [];
+  Object.entries(TEAMS).forEach(([key, team]) => {
+    team.tasks.forEach(task => {
+      if (!selections[task.id]) unselected.push({ ...task, teamKey: key, teamLabel: team.label });
+    });
+  });
 
-  return (
-    <div style={S.wrap}>
-      {/* Header */}
-      <div style={S.header}>
-        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          <div style={S.logo}>⚡</div>
-          <div>
-            <div style={{ color:"#F1F5F9", fontWeight:700, fontSize:14 }}>단순업무 인력 최적화</div>
-            <div style={{ color:"#64748B", fontSize:10 }}>팀장 업무 선택 보고 시스템</div>
-          </div>
-        </div>
-        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-          {savedAt && <div style={{ color:"#475569", fontSize:10, marginRight:4 }}>저장: {savedAt}</div>}
-          <button style={S.btnGhost} onClick={() => setView(v => v === "select" ? "summary" : "select")}>
-            {view === "select" ? "📊 요약보기" : "✏️ 선택으로"}
-          </button>
-          <button style={{ ...S.btnPrimary, opacity: saving ? 0.6 : 1 }} onClick={handleSave} disabled={saving}>
-            {saving ? "저장 중..." : "💾 저장"}
-          </button>
-        </div>
+  if (unselected.length === 0) {
+    html += `<div class="completion-banner"><p>모든 업무가 분류 완료되었습니다.</p></div>`;
+  } else {
+    html += `<div class="unselected-section">
+      <div class="section-header">
+        <div class="section-marker"></div>
+        <h2>미분류 업무</h2>
+        <span class="section-count">${unselected.length}건</span>
       </div>
+      <table class="data-table muted"><thead><tr>
+        <th style="width:120px">소속</th><th>업무명</th><th style="width:70px">빈도</th>
+      </tr></thead><tbody>`;
+    unselected.forEach(task => {
+      html += `<tr>
+        <td><span class="team-badge ${task.teamKey}">${task.teamLabel}</span></td>
+        <td>${task.name}</td>
+        <td class="freq-tag">${task.freq}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
 
-      {/* Toast */}
-      {toast && (
-        <div style={{ position:"fixed", top:68, right:20, zIndex:999, background: toast.type==="error" ? "#FEF2F2":"#F0FDF4", border:`1px solid ${toast.type==="error"?"#FECACA":"#BBF7D0"}`, color:toast.type==="error"?"#DC2626":"#15803D", padding:"9px 16px", borderRadius:9, fontSize:13, fontWeight:600, boxShadow:"0 4px 16px rgba(0,0,0,0.12)" }}>
-          {toast.msg}
-        </div>
-      )}
-
-      {view === "select" ? (
-        <div style={{ display:"flex", height:"calc(100vh - 56px)" }}>
-          {/* Sidebar */}
-          <div style={S.sidebar}>
-            <div style={{ padding:"0 14px 10px", fontSize:10, fontWeight:700, color:"#94A3B8", letterSpacing:"0.06em", textTransform:"uppercase" }}>부서 선택</div>
-            {Object.entries(TEAMS).map(([key, team]) => {
-              const done = team.tasks.filter(t => selections[t.id]).length;
-              const isActive = activeTeam === key;
-              return (
-                <button key={key} onClick={() => setActiveTeam(key)} style={{ width:"100%", padding:"9px 14px", border:"none", background: isActive ? team.light : "transparent", cursor:"pointer", textAlign:"left", display:"flex", alignItems:"center", justifyContent:"space-between", borderLeft:`3px solid ${isActive ? team.color : "transparent"}`, transition:"all 0.15s" }}>
-                  <div>
-                    <div style={{ fontSize:12, fontWeight: isActive ? 700 : 500, color: isActive ? team.color : "#374151" }}>{team.label}</div>
-                    <div style={{ fontSize:10, color:"#9CA3AF", marginTop:1 }}>{team.tasks.length}개 업무</div>
-                  </div>
-                  <div style={{ background: done>0 ? team.color : "#E5E7EB", color: done>0 ? "#fff" : "#9CA3AF", borderRadius:20, padding:"2px 7px", fontSize:10, fontWeight:700 }}>{done}/{team.tasks.length}</div>
-                </button>
-              );
-            })}
-
-            {/* Progress */}
-            <div style={{ margin:"14px 12px 0", padding:"11px", background:"#F8FAFC", borderRadius:10, border:"1px solid #E2E8F0" }}>
-              <div style={{ fontSize:10, color:"#94A3B8", marginBottom:3 }}>전체 진행률</div>
-              <div style={{ fontSize:20, fontWeight:800, color:"#1E293B" }}>{selectedCount}<span style={{ fontSize:11, color:"#94A3B8", fontWeight:400 }}>/{totalTasks}</span></div>
-              <div style={{ marginTop:7, height:5, background:"#E2E8F0", borderRadius:99, overflow:"hidden" }}>
-                <div style={{ height:"100%", width:`${(selectedCount/totalTasks)*100}%`, background:"linear-gradient(90deg,#6366F1,#8B5CF6)", borderRadius:99, transition:"width 0.4s ease" }} />
-              </div>
-            </div>
-
-            {/* Legend */}
-            <div style={{ margin:"12px 12px 0", padding:"10px", background:"#F8FAFC", borderRadius:10, border:"1px solid #E2E8F0" }}>
-              <div style={{ fontSize:10, color:"#94A3B8", marginBottom:7, fontWeight:700 }}>유형 범례</div>
-              {TYPES.map(t => (
-                <div key={t.key} style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
-                  <span style={{ fontSize:13 }}>{t.emoji}</span>
-                  <span style={{ fontSize:11, fontWeight:600, color:t.color }}>{t.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Main area */}
-          <div style={S.main}>
-            {(() => {
-              const team = TEAMS[activeTeam];
-              return (
-                <>
-                  <div style={{ marginBottom:20 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-                      <div style={{ width:8, height:8, borderRadius:"50%", background:team.color }} />
-                      <h2 style={{ margin:0, fontSize:18, fontWeight:800, color:"#0F172A" }}>{team.label}</h2>
-                    </div>
-                    <p style={{ margin:0, color:"#64748B", fontSize:12 }}>각 업무의 인력 유형을 선택 후 상단 <strong>저장</strong> 버튼을 눌러주세요.</p>
-                  </div>
-                  <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                    {team.tasks.map(task => {
-                      const selected = selections[task.id];
-                      const selType = TYPES.find(t => t.key === selected);
-                      return (
-                        <div key={task.id} style={{ background:"#fff", border:`1.5px solid ${selType ? selType.border : "#E2E8F0"}`, borderRadius:11, padding:"12px 16px", transition:"all 0.2s", boxShadow: selType ? `0 2px 10px ${selType.color}1A` : "0 1px 3px rgba(0,0,0,0.04)" }}>
-                          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12 }}>
-                            <div style={{ flex:1, minWidth:0 }}>
-                              <div style={{ display:"flex", alignItems:"center", gap:6, flexWrap:"wrap", marginBottom:3 }}>
-                                <span style={{ fontWeight:700, fontSize:13, color:"#0F172A" }}>{task.name}</span>
-                                <span style={{ fontSize:10, background:"#F1F5F9", color:"#64748B", padding:"2px 7px", borderRadius:20, whiteSpace:"nowrap" }}>{task.freq}</span>
-                                {selType && <span style={{ fontSize:10, background:selType.bg, color:selType.color, padding:"2px 8px", borderRadius:20, fontWeight:700, border:`1px solid ${selType.border}`, whiteSpace:"nowrap" }}>{selType.emoji} {selType.label}</span>}
-                              </div>
-                              <div style={{ fontSize:11, color:"#64748B" }}>{task.desc}</div>
-                            </div>
-                            <div style={{ display:"flex", gap:5, flexShrink:0 }}>
-                              {TYPES.map(t => (
-                                <button key={t.key} onClick={() => setTaskType(task.id, t.key)} title={t.label}
-                                  style={{ width:34, height:34, borderRadius:8, border:`1.5px solid ${selected===t.key ? t.color : "#E2E8F0"}`, background: selected===t.key ? t.bg : "#FAFAFA", cursor:"pointer", fontSize:15, display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.15s", transform: selected===t.key ? "scale(1.12)" : "scale(1)", flexShrink:0 }}>
-                                  {t.emoji}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          {selected && (
-                            <div style={{ marginTop:8 }}>
-                              <input value={notes[task.id] || ""} onChange={e => setNote(task.id, e.target.value)}
-                                placeholder="메모 (선정 이유, 담당자 예시 등)"
-                                style={{ width:"100%", boxSizing:"border-box", padding:"6px 11px", borderRadius:7, border:"1px solid #E2E8F0", fontSize:11, color:"#374151", outline:"none", background:"#F8FAFC" }} />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              );
-            })()}
-          </div>
-        </div>
-      ) : (
-        /* Summary */
-        <div style={{ maxWidth:900, margin:"0 auto", padding:"28px 20px" }}>
-          <div style={{ marginBottom:24 }}>
-            <h2 style={{ margin:"0 0 4px", fontSize:20, fontWeight:800, color:"#0F172A" }}>📊 인력 최적화 요약 보고</h2>
-            <p style={{ margin:0, color:"#64748B", fontSize:12 }}>팀장들이 선택한 업무 유형 분류 현황{savedAt && ` · 마지막 저장: ${savedAt}`}</p>
-          </div>
-
-          {/* Stat cards */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:28 }}>
-            {TYPES.map(t => (
-              <div key={t.key} style={{ background:"#fff", border:`1.5px solid ${t.border}`, borderRadius:11, padding:"14px", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
-                <div style={{ fontSize:22 }}>{t.emoji}</div>
-                <div style={{ fontSize:26, fontWeight:800, color:t.color, margin:"3px 0 1px" }}>{summaryByType[t.key].length}</div>
-                <div style={{ fontSize:11, fontWeight:700, color:t.color }}>{t.label}</div>
-                <div style={{ fontSize:10, color:"#9CA3AF" }}>전체 {totalTasks}개 중</div>
-              </div>
-            ))}
-          </div>
-
-          {TYPES.map(t => {
-            const items = summaryByType[t.key];
-            if (!items.length) return null;
-            return (
-              <div key={t.key} style={{ marginBottom:20 }}>
-                <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:10 }}>
-                  <span style={{ fontSize:16 }}>{t.emoji}</span>
-                  <h3 style={{ margin:0, fontSize:14, fontWeight:800, color:t.color }}>{t.label}</h3>
-                  <span style={{ background:t.bg, color:t.color, border:`1px solid ${t.border}`, borderRadius:20, padding:"2px 9px", fontSize:11, fontWeight:700 }}>{items.length}건</span>
-                </div>
-                <div style={{ background:"#fff", border:`1px solid ${t.border}`, borderRadius:11, overflow:"hidden" }}>
-                  <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
-                    <thead>
-                      <tr style={{ background:t.bg }}>
-                        {["팀","업무명","빈도","메모"].map(h => (
-                          <th key={h} style={{ padding:"8px 13px", textAlign:"left", fontWeight:700, color:t.color, fontSize:11, borderBottom:`1px solid ${t.border}` }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((task, i) => (
-                        <tr key={task.id} style={{ borderBottom: i<items.length-1 ? "1px solid #F1F5F9" : "none" }}>
-                          <td style={{ padding:"9px 13px" }}>
-                            <span style={{ background:`${task.teamColor}18`, color:task.teamColor, padding:"2px 7px", borderRadius:5, fontSize:10, fontWeight:700, whiteSpace:"nowrap" }}>{task.teamLabel}</span>
-                          </td>
-                          <td style={{ padding:"9px 13px", fontWeight:600, color:"#0F172A" }}>{task.name}</td>
-                          <td style={{ padding:"9px 13px", color:"#64748B", whiteSpace:"nowrap" }}>{task.freq}</td>
-                          <td style={{ padding:"9px 13px", color:"#94A3B8", fontSize:11 }}>{notes[task.id] || "—"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Unselected */}
-          {(() => {
-            const unselected = Object.values(TEAMS).flatMap(team =>
-              team.tasks.filter(t => !selections[t.id]).map(t => ({ ...t, teamLabel:team.label, teamColor:team.color }))
-            );
-            if (!unselected.length) return (
-              <div style={{ textAlign:"center", padding:"20px", color:"#10B981", fontWeight:700, fontSize:13 }}>🎉 모든 업무가 분류 완료되었습니다!</div>
-            );
-            return (
-              <div style={{ marginTop:8 }}>
-                <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:10 }}>
-                  <span style={{ fontSize:16 }}>⏳</span>
-                  <h3 style={{ margin:0, fontSize:14, fontWeight:800, color:"#94A3B8" }}>미분류 업무</h3>
-                  <span style={{ background:"#F1F5F9", color:"#94A3B8", borderRadius:20, padding:"2px 9px", fontSize:11, fontWeight:700 }}>{unselected.length}건</span>
-                </div>
-                <div style={{ background:"#fff", border:"1px solid #E2E8F0", borderRadius:11, overflow:"hidden" }}>
-                  <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
-                    <thead>
-                      <tr style={{ background:"#F8FAFC" }}>
-                        {["팀","업무명","빈도"].map(h => (
-                          <th key={h} style={{ padding:"8px 13px", textAlign:"left", fontWeight:700, color:"#94A3B8", fontSize:11, borderBottom:"1px solid #E2E8F0" }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {unselected.map((task, i) => (
-                        <tr key={task.id} style={{ borderBottom: i<unselected.length-1 ? "1px solid #F1F5F9":"none", opacity:0.65 }}>
-                          <td style={{ padding:"8px 13px" }}>
-                            <span style={{ background:`${task.teamColor}18`, color:task.teamColor, padding:"2px 7px", borderRadius:5, fontSize:10, fontWeight:700 }}>{task.teamLabel}</span>
-                          </td>
-                          <td style={{ padding:"8px 13px", color:"#374151" }}>{task.name}</td>
-                          <td style={{ padding:"8px 13px", color:"#94A3B8" }}>{task.freq}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-      )}
-    </div>
-  );
+  wrap.innerHTML = html;
 }
+
+// Boot
+loadData();
+renderTeamTabs();
+renderTaskList();
+</script>
+</body>
+</html>
