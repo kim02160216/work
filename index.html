@@ -23,6 +23,7 @@
   --freelance: #C084FC; --freelance-bg: rgba(192,132,252,0.15); --freelance-border: rgba(192,132,252,0.35);
   --contract: #FBBF24; --contract-bg: rgba(251,191,36,0.15); --contract-border: rgba(251,191,36,0.35);
   --auto: #34D399; --auto-bg: rgba(52,211,153,0.15); --auto-border: rgba(52,211,153,0.35);
+  --keep: #60A5FA; --keep-bg: rgba(96,165,250,0.15); --keep-border: rgba(96,165,250,0.35);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 ::selection { background: rgba(192,132,252,0.3); }
@@ -42,7 +43,7 @@ body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(-
 .btn:active { transform: scale(0.97); }
 .btn-ghost { background: var(--card); color: var(--text-muted); border: 1px solid var(--border); }
 .btn-ghost:hover { color: var(--text); background: var(--border-hover); border-color: var(--border-hover); }
-.btn-primary { background: linear-gradient(135deg, #7C3AED, #6366F1); color: #fff; font-weight: 700; }
+.btn-primary { background: linear-gradient(135deg, #7C3AED, #6366F1); color: #fff; font-weight: 700; border: none; }
 .btn-primary:hover { opacity: 0.9; }
 .btn-primary:disabled { opacity: 0.4; cursor: default; }
 
@@ -56,7 +57,7 @@ body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(-
 .cover { background: linear-gradient(135deg, var(--card) 0%, var(--border) 100%); border: 1px solid var(--border); border-radius: 10px; padding: 28px 24px 24px; margin-bottom: 20px; }
 .cover-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; margin-bottom: 12px; }
 .cover h1 { font-family: 'DM Serif Display', serif; font-size: clamp(22px, 5vw, 32px); color: var(--text); font-weight: 400; line-height: 1.3; margin-bottom: 8px; }
-.cover p { font-size: 13px; color: var(--text-muted); line-height: 1.7; max-width: 500px; }
+.cover p { font-size: 13px; color: var(--text-muted); line-height: 1.7; max-width: 520px; }
 .progress-wrap { margin-top: 20px; display: flex; align-items: center; gap: 14px; }
 .progress-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, #7C3AED, #60A5FA); border-radius: 2px; transition: width 0.4s ease; }
@@ -81,12 +82,12 @@ body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(-
 .task-card:hover { border-color: var(--border-hover); }
 .task-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .task-info { flex: 1; min-width: 160px; }
-.task-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 3px; }
+.task-name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 3px; }
 .task-name { font-size: 13px; font-weight: 700; color: var(--text-dim); }
 .freq-badge { font-size: 10px; background: var(--border); color: var(--text-muted); padding: 2px 8px; border-radius: 3px; }
-.sel-badge { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 3px; }
+.sel-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 3px; display: inline-block; }
 .task-desc { font-size: 11px; color: var(--text-faint); }
-.type-btns { display: flex; gap: 4px; flex-shrink: 0; }
+.type-btns { display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; }
 .type-btn { padding: 6px 12px; border-radius: 5px; font-size: 11px; font-weight: 500; cursor: pointer; background: var(--card); color: var(--text-muted); border: 1px solid var(--border-hover); font-family: inherit; transition: all 0.15s; }
 .type-btn:hover { border-color: var(--text-ghost); color: var(--text-dim); }
 .task-note { margin-top: 10px; }
@@ -95,10 +96,10 @@ body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(-
 .task-note input::placeholder { color: var(--text-faint); }
 
 .summary-container { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
-.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 32px; }
-.stat-card { background: var(--surface); border-radius: 8px; padding: 20px 16px; text-align: center; }
-.stat-type { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
-.stat-num { font-family: 'DM Serif Display', serif; font-size: 36px; line-height: 1; }
+.stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 32px; }
+.stat-card { background: var(--surface); border-radius: 8px; padding: 20px 12px; text-align: center; }
+.stat-type { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 32px; line-height: 1; }
 .stat-total { font-size: 10px; color: var(--text-void); margin-top: 4px; }
 
 .section-block { margin-bottom: 28px; }
@@ -108,9 +109,9 @@ body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(-
 .section-count { font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 4px; margin-left: auto; }
 
 .data-table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; width: 100%; }
-.table-header { display: grid; grid-template-columns: 110px 1fr 70px 180px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.table-header { display: grid; grid-template-columns: 100px 1fr 60px 160px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
 .table-header div { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--text-faint); }
-.table-row { display: grid; grid-template-columns: 110px 1fr 70px 180px; padding: 12px 16px; align-items: center; border-bottom: 1px solid var(--card); }
+.table-row { display: grid; grid-template-columns: 100px 1fr 60px 160px; padding: 12px 16px; align-items: center; border-bottom: 1px solid var(--card); }
 .table-row:last-child { border-bottom: none; }
 .table-row-mobile { display: none; padding: 12px 16px; border-bottom: 1px solid var(--card); }
 .table-row-mobile:last-child { border-bottom: none; }
@@ -120,6 +121,7 @@ body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(-
 .row-desc { font-size: 10px; color: var(--text-faint); margin-top: 1px; }
 .row-freq { font-size: 11px; color: var(--text-muted); }
 .row-note { font-size: 11px; color: var(--text-faint); }
+.row-types { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
 
 .unselected-section { margin-top: 20px; padding-top: 24px; border-top: 1px solid var(--border); }
 .unselected-row { padding: 10px 16px; border-bottom: 1px solid var(--card); opacity: 0.45; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -133,16 +135,15 @@ body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(-
 
 @media (max-width: 640px) {
   .team-tabs { grid-template-columns: 1fr 1fr; }
-  .stat-grid { grid-template-columns: 1fr 1fr; }
-  .type-btns { flex-wrap: wrap; }
-  .type-btn { padding: 6px 10px; font-size: 10px; }
+  .stat-grid { grid-template-columns: repeat(3, 1fr); }
   .header-sub, .header-time { display: none; }
   .table-header, .table-row { display: none; }
   .table-row-mobile { display: block; }
   .task-top { flex-direction: column; gap: 10px; }
   .type-btns { width: 100%; }
-  .type-btn { flex: 1; text-align: center; }
-  .stat-num { font-size: 28px; }
+  .type-btn { flex: 1; text-align: center; padding: 7px 8px; font-size: 10px; }
+  .stat-num { font-size: 26px; }
+  .stat-card { padding: 16px 8px; }
 }
 </style>
 </head>
@@ -172,7 +173,7 @@ body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(-
   <div class="cover">
     <div class="cover-label">Task Classification System</div>
     <h1>단순업무 인력 최적화</h1>
-    <p>각 업무별 외주 · 프리랜서 · 계약직 · 자동화 유형을 선택하세요.<br>
+    <p>각 업무별 유형을 선택하세요. 중복 선택이 가능합니다.<br>
     저장하면 이 페이지 URL을 공유받은 누구나 동일 데이터를 확인할 수 있습니다.</p>
     <div class="progress-wrap">
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
@@ -197,83 +198,109 @@ body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(-
 </div>
 
 <script>
-// ═══ Supabase Config ═══
-const SUPA_URL = "https://szlmibfbimyocppqcukg.supabase.co";
-const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6bG1pYmZiaW15b2NwcHFjdWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxOTIyMjMsImV4cCI6MjA4ODc2ODIyM30.UWPzC0aMZWM-PKXHU8fvd5aeKX7wqUitxWLep7trW_Y";
-const TABLE = "task_selections";
-const ROW_ID = "shared";
+// ═══ Supabase ═══
+var SUPA_URL = "https://szlmibfbimyocppqcukg.supabase.co";
+var SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6bG1pYmZiaW15b2NwcHFjdWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxOTIyMjMsImV4cCI6MjA4ODc2ODIyM30.UWPzC0aMZWM-PKXHU8fvd5aeKX7wqUitxWLep7trW_Y";
+var TABLE = "task_selections";
+var ROW_ID = "shared";
 
 async function supaFetch(method, body) {
-  const base = SUPA_URL + "/rest/v1/" + TABLE + "?id=eq." + ROW_ID;
-  const url = method === "GET" ? base + "&select=*" : base;
-  const h = { "apikey": SUPA_KEY, "Authorization": "Bearer " + SUPA_KEY, "Content-Type": "application/json" };
+  var base = SUPA_URL + "/rest/v1/" + TABLE + "?id=eq." + ROW_ID;
+  var url = method === "GET" ? base + "&select=*" : base;
+  var h = { "apikey": SUPA_KEY, "Authorization": "Bearer " + SUPA_KEY, "Content-Type": "application/json" };
   if (method === "PATCH") h["Prefer"] = "return=representation";
-  const opts = { method: method, headers: h };
+  var opts = { method: method, headers: h };
   if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(url, opts);
+  var res = await fetch(url, opts);
   if (!res.ok) throw new Error("HTTP " + res.status);
   return res.json().catch(function() { return null; });
 }
 
 // ═══ Data ═══
 var TEAMS = {
-  marketing: { label: "\ub9c8\ucf00\ud305\ud300", accent: "#60A5FA", tasks: [
-    { id:"m1", name:"\ud37c\ud3ec\uba3c\uc2a4 \ud6a8\uc728 \ub370\uc774\ud130 \uc815\ub9ac", desc:"\uad11\uace0 \ucc44\ub110\ubcc4 \uc131\uacfc \uc9c0\ud45c \uc218\uc9d1 \ubc0f \uc815\ub9ac", freq:"\uc8fc\uac04" },
-    { id:"m2", name:"SNS \ucf58\ud150\uce20\ubcc4 \ub370\uc774\ud130 \uc815\ub9ac", desc:"\ucc44\ub110\ubcc4 \uc88b\uc544\uc694\xb7\uacf5\uc720\xb7\ub3c4\ub2ec \ub370\uc774\ud130 \uc218\uc9d1", freq:"\uc8fc\uac04" },
-    { id:"m3", name:"\uae30\uc548 \ubc0f \uc9c0\ucd9c\uacb0\uc758\uc11c \uc791\uc131", desc:"\uc608\uc0b0 \uc9d1\ud589 \uad00\ub828 \ub0b4\ubd80 \uacb0\uc7ac \uc11c\ub958 \uc791\uc131", freq:"\uc218\uc2dc" },
-    { id:"m4", name:"\uc8fc\uac04\ubcf4\uace0 \uc791\uc131", desc:"\uc8fc\uac04 \ub9c8\ucf00\ud305 \uc131\uacfc \ubcf4\uace0\uc11c \uc791\uc131", freq:"\uc8fc\uac04" },
-    { id:"m5", name:"SNS \ubc18\uc751 \ubcf4\uace0", desc:"SNS \ub313\uae00\xb7\ubc18\uc751 \ubaa8\ub2c8\ud130\ub9c1 \ubc0f \ubcf4\uace0", freq:"\uc8fc\uac04" },
+  marketing: { label: "마케팅팀", accent: "#60A5FA", tasks: [
+    { id:"m1", name:"퍼포먼스 효율 데이터 정리", desc:"광고 채널별 성과 지표 수집 및 정리", freq:"주간" },
+    { id:"m2", name:"SNS 콘텐츠별 데이터 정리", desc:"채널별 좋아요·공유·도달 데이터 수집", freq:"주간" },
+    { id:"m3", name:"기안 및 지출결의서 작성", desc:"예산 집행 관련 내부 결재 서류 작성", freq:"수시" },
+    { id:"m4", name:"주간보고 작성", desc:"주간 마케팅 성과 보고서 작성", freq:"주간" },
+    { id:"m5", name:"SNS 반응 보고", desc:"SNS 댓글·반응 모니터링 및 보고", freq:"주간" },
   ]},
-  domestic: { label: "\uad6d\ub0b4 \ud50c\ub7ab\ud3fc \uc0ac\uc5c5\ud300", accent: "#34D399", tasks: [
-    { id:"d1", name:"CS \uacb0\uc81c \ud574\uc9c0\xb7\ud658\ubd88 \ucc98\ub9ac", desc:"\uacb0\uc81c \uad00\ub828 \uace0\uac1d \ubb38\uc758 \ub2f5\ubcc0 \ubc0f \ucc98\ub9ac", freq:"\uc77c\uac04" },
-    { id:"d2", name:"\uc774\uc6a9 \uc815\ucc45 \uad00\ub828 \ub2f5\ubcc0 \ucc98\ub9ac", desc:"\uc11c\ube44\uc2a4 \uc774\uc6a9 \uc815\ucc45 \ubb38\uc758 \uc751\ub300", freq:"\uc77c\uac04" },
-    { id:"d3", name:"\uae30\uad00 \uc2e0\uace0 \ud0c8\ud1f4 \ubbfc\uc6d0 \ucc98\ub9ac", desc:"\uae30\uad00 \uad00\ub828 \uc2e0\uace0\xb7\ud0c8\ud1f4 \ubbfc\uc6d0 \ub300\uc751", freq:"\uc218\uc2dc" },
-    { id:"d4", name:"\uad7f\uc988 \ubc1c\uc8fc\uc11c \uc791\uc131", desc:"\uad7f\uc988 \uc81c\uc791 \ubc1c\uc8fc \uad00\ub828 \uc11c\ub958 \uc791\uc131", freq:"\uc6d4\uac04" },
-    { id:"d5", name:"\uc0ac\uc774\ud2b8 \ubaa8\ub2c8\ud130\ub9c1(\uc624\uc804/\uc624\ud6c4)", desc:"\uc11c\ube44\uc2a4 \uc774\uc0c1 \uc720\ubb34 \uc815\uae30 \uc810\uac80", freq:"\uc77c2\ud68c" },
-    { id:"d6", name:"\uad70\uc778\uc694\uae08\uc81c \uc2b9\uc778 \ucc98\ub9ac", desc:"\uad70\uc778 \uc778\uc99d \ud6c4 \uc694\uae08\uc81c \uc2b9\uc778 \uc791\uc5c5", freq:"\uc218\uc2dc" },
-    { id:"d7", name:"\uba54\uc778 \ubc30\ub108 \ubc30\uce58 \uc694\uccad", desc:"\ubd81\uc2a4 \uba54\uc778 \ubc30\ub108 \ud30c\uc77c\xb7\uc77c\uc2dc\xb7\ub9c1\ud06c \ub4f1\ub85d", freq:"\uc218\uc2dc" },
-    { id:"d8", name:"\uae30\uc548/\uc9c0\ucd9c\uacb0\uc758\uc11c \uc791\uc131", desc:"\uc608\uc0b0 \uc9d1\ud589 \uad00\ub828 \ub0b4\ubd80 \uacb0\uc7ac \uc11c\ub958 \uc791\uc131", freq:"\uc218\uc2dc" },
-    { id:"d9", name:"DB \ub370\uc774\ud130 \ucd94\ucd9c", desc:"\uc6b4\uc601 DB\uc5d0\uc11c \ud544\uc694 \ub370\uc774\ud130 \ucd94\ucd9c", freq:"\uc218\uc2dc" },
+  domestic: { label: "국내 플랫폼 사업팀", accent: "#34D399", tasks: [
+    { id:"d1", name:"CS 결제 해지·환불 처리", desc:"결제 관련 고객 문의 답변 및 처리", freq:"일간" },
+    { id:"d2", name:"이용 정책 관련 답변 처리", desc:"서비스 이용 정책 문의 응대", freq:"일간" },
+    { id:"d3", name:"기관 신고 탈퇴 민원 처리", desc:"기관 관련 신고·탈퇴 민원 대응", freq:"수시" },
+    { id:"d4", name:"굿즈 발주서 작성", desc:"굿즈 제작 발주 관련 서류 작성", freq:"월간" },
+    { id:"d5", name:"사이트 모니터링(오전/오후)", desc:"서비스 이상 유무 정기 점검", freq:"일2회" },
+    { id:"d6", name:"군인요금제 승인 처리", desc:"군인 인증 후 요금제 승인 작업", freq:"수시" },
+    { id:"d7", name:"메인 배너 배치 요청", desc:"북스 메인 배너 파일·일시·링크 등록", freq:"수시" },
+    { id:"d8", name:"기안/지출결의서 작성", desc:"예산 집행 관련 내부 결재 서류 작성", freq:"수시" },
+    { id:"d9", name:"DB 데이터 추출", desc:"운영 DB에서 필요 데이터 추출", freq:"수시" },
   ]},
-  global: { label: "\uae00\ub85c\ubc8c\ud300", accent: "#FBBF24", tasks: [
-    { id:"g1", name:"\uc18c\uc124 \ubc88\uc5ed\uc6a9 \ub2e8\uc5b4\uc9d1 \uc0dd\uc131", desc:"\ubc88\uc5ed \uc77c\uad00\uc131\uc744 \uc704\ud55c \uc6a9\uc5b4\uc9d1 \uc81c\uc791", freq:"\uc791\ud488\ub2f9" },
-    { id:"g2", name:"AI \ubc88\uc5ed \ud68c\ucc28 \uc81c\ubaa9\xb7\ub0b4\uc6a9 \uac80\uc218", desc:"AI \ubc88\uc5ed \uacb0\uacfc\ubb3c \ud488\uc9c8 \uac80\uc218 (\uc678\uc8fc \uc9c4\ud589 \uc911)", freq:"\uc77c\uac04" },
-    { id:"g3", name:"\uc5d0\ub527\ud305 \ud68c\ucc28 \uac80\uc218 \ubc0f \uc5c5\ub85c\ub4dc", desc:"\ud3b8\uc9d1 \uc644\ub8cc \ud68c\ucc28 \ucd5c\uc885 \ud655\uc778 \ud6c4 \ub4f1\ub85d", freq:"\uc77c\uac04" },
-    { id:"g4", name:"\uc77c\ubcc4 \ub370\uc774\ud130 \ubaa8\ub2c8\ud130\ub9c1", desc:"\uae00\ub85c\ubc8c \uc11c\ube44\uc2a4 \uc77c\ubcc4 \uc9c0\ud45c \ud655\uc778", freq:"\uc77c\uac04" },
-    { id:"g5", name:"\uc791\uac00\xb7\uc5d0\ub527\ud130 \uc1a1\uae08", desc:"\uc815\uc0b0 \ub300\uc0c1\uc790 \uc1a1\uae08 \ucc98\ub9ac (API \uc788\uc73c\ub098 \uac1c\ubc1c \ubbf8\uc815)", freq:"\uc6d4\uac04" },
-    { id:"g6", name:"\uc624\ub9ac\uc9c0\ub110 \ucf58\ud150\uce20\xb7\ub313\uae00 \ubaa8\ub2c8\ud130\ub9c1", desc:"\uc624\ub9ac\uc9c0\ub110 \uc791\ud488 \ubc18\uc751 \ubc0f \ub313\uae00 \ubaa8\ub2c8\ud130\ub9c1", freq:"\uc77c\uac04" },
-    { id:"g7", name:"\ud504\ub9ac\ubbf8\uc5c4 \uc804\ud658 \uc791\uac00 \uc2b9\uc778\xb7\uc815\uc0b0 \ub4f1\ub85d", desc:"\ud504\ub9ac\ubbf8\uc5c4 \uc804\ud658 \uc2e0\uccad \uac80\ud1a0 \ubc0f \uc815\uc0b0 \uc815\ubcf4 \ud655\uc778", freq:"\uc218\uc2dc" },
-    { id:"g8", name:"\uc791\ud488 \uba54\uc778 \ubc30\ub108 \uc138\ud305", desc:"\ub178\ucd9c \ub300\uc0c1\xb7\uc77c\uc815 \uae30\ubc18 \ubc30\ub108 \uc138\ud305 \uc791\uc5c5", freq:"\uc218\uc2dc" },
-    { id:"g9", name:"\uac1c\ubcc4 \ub370\uc774\ud130 \ucd94\ucd9c", desc:"\ud544\uc694 \ub370\uc774\ud130 \uac74\ubcc4 \uc218\ub3d9 \ucd94\ucd9c", freq:"\uc218\uc2dc" },
-    { id:"g10", name:"\uae30\uc548/\uc9c0\ucd9c\uacb0\uc758\uc11c \uc791\uc131", desc:"\uc608\uc0b0 \uc9d1\ud589 \uad00\ub828 \ub0b4\ubd80 \uacb0\uc7ac \uc11c\ub958 \uc791\uc131", freq:"\uc218\uc2dc" },
+  global: { label: "글로벌팀", accent: "#FBBF24", tasks: [
+    { id:"g1", name:"소설 번역용 단어집 생성", desc:"번역 일관성을 위한 용어집 제작", freq:"작품당" },
+    { id:"g2", name:"AI 번역 회차 제목·내용 검수", desc:"AI 번역 결과물 품질 검수 (외주 진행 중)", freq:"일간" },
+    { id:"g3", name:"에딧팅 회차 검수 및 업로드", desc:"편집 완료 회차 최종 확인 후 등록", freq:"일간" },
+    { id:"g4", name:"일별 데이터 모니터링", desc:"글로벌 서비스 일별 지표 확인", freq:"일간" },
+    { id:"g5", name:"작가·에딧터 송금", desc:"정산 대상자 송금 처리 (API 있으나 개발 미정)", freq:"월간" },
+    { id:"g6", name:"오리지널 콘텐츠·댓글 모니터링", desc:"오리지널 작품 반응 및 댓글 모니터링", freq:"일간" },
+    { id:"g7", name:"프리미엄 전환 작가 승인·정산 등록", desc:"프리미엄 전환 신청 검토 및 정산 정보 확인", freq:"수시" },
+    { id:"g8", name:"작품 메인 배너 세팅", desc:"노출 대상·일정 기반 배너 세팅 작업", freq:"수시" },
+    { id:"g9", name:"개별 데이터 추출", desc:"필요 데이터 건별 수동 추출", freq:"수시" },
+    { id:"g10", name:"기안/지출결의서 작성", desc:"예산 집행 관련 내부 결재 서류 작성", freq:"수시" },
   ]},
-  ai: { label: "AI \uc544\ud2b8\uc0ac\uc5c5\ud300", accent: "#C084FC", tasks: [
-    { id:"a1", name:"AI \ud06c\ub808\ub527\xb7\uacc4\uc815 \uad00\ub9ac", desc:"AI \ud234 \ud06c\ub808\ub527 \ud604\ud669 \ud655\uc778 \ubc0f \uacc4\uc815 \uad00\ub9ac", freq:"\uc218\uc2dc" },
-    { id:"a2", name:"AI \ud06c\ub9ac\uc5d0\uc774\ud130 \ubc1c\uad74\xb7\ucee8\ud0dd", desc:"\uc2e0\uaddc \ud06c\ub9ac\uc5d0\uc774\ud130 \ub9ac\uc11c\uce58 \ubc0f \ucd08\uae30 \ucee8\ud0dd", freq:"\uc218\uc2dc" },
-    { id:"a3", name:"AI \uc6f9\ud230 \ucf58\ud2f0\xb7\ud6c4\ubcf4\uc815\xb7\uc2dd\uc790", desc:"\uc6f9\ud230 \uc81c\uc791 \uacfc\uc815 \uc911 \ubc18\ubcf5 \uc791\uc5c5 \ubd80\ubd84", freq:"\uc791\ud488\ub2f9" },
-    { id:"a4", name:"AI \uc601\uc0c1 \ud3b8\uc9d1\xb7\uc74c\uc131\xb7\ucef7 \ubd84\ud560", desc:"\uc601\uc0c1 \uc81c\uc791 \uacfc\uc815 \uc911 \ubc18\ubcf5 \ud3b8\uc9d1 \uc791\uc5c5", freq:"\uc791\ud488\ub2f9" },
-    { id:"a5", name:"IP \uac80\ud1a0 \ud0c0\ubd80\uc11c \uc18c\ud1b5", desc:"IP \ud611\uc758\ub97c \uc704\ud55c \ub0b4\ubd80 \ubd80\uc11c \uac04 \ucee4\ubba4\ub2c8\ucf00\uc774\uc158", freq:"\uc218\uc2dc" },
-    { id:"a6", name:"AI \uc6f9\ud230\xb7\uc601\uc0c1 \uc378\ub124\uc77c \uc791\uc5c5", desc:"\ucc44\ub110 \ub4f1\ub85d\uc6a9 \uc378\ub124\uc77c \uc774\ubbf8\uc9c0 \uc81c\uc791", freq:"\uc791\ud488\ub2f9" },
-    { id:"a7", name:"\uc791\ud488 \uc5c5\ub85c\ub4dc \ubc0f \uc2a4\ucf00\uc904 \uad00\ub9ac", desc:"\ud50c\ub7ab\ud3fc \uc5c5\ub85c\ub4dc \ubc0f \uacf5\uac1c \uc77c\uc815 \uad00\ub9ac", freq:"\uc218\uc2dc" },
-    { id:"a8", name:"\uacc4\uc57d\uc11c \uad00\ub9ac", desc:"\uacc4\uc57d\uc11c \ud30c\uc77c \uc815\ub9ac \ubc0f \ud604\ud669 \uad00\ub9ac", freq:"\uc218\uc2dc" },
-    { id:"a9", name:"\uae30\uc548/\uc9c0\ucd9c\uacb0\uc758\uc11c \uc791\uc131", desc:"\uc608\uc0b0 \uc9d1\ud589 \uad00\ub828 \ub0b4\ubd80 \uacb0\uc7ac \uc11c\ub958 \uc791\uc131", freq:"\uc218\uc2dc" },
+  ai: { label: "AI 아트사업팀", accent: "#C084FC", tasks: [
+    { id:"a1", name:"AI 크레딧·계정 관리", desc:"AI 툴 크레딧 현황 확인 및 계정 관리", freq:"수시" },
+    { id:"a2", name:"AI 크리에이터 발굴·컨택", desc:"신규 크리에이터 리서치 및 초기 컨택", freq:"수시" },
+    { id:"a3", name:"AI 웹툰 콘티·후보정·식자", desc:"웹툰 제작 과정 중 반복 작업 부분", freq:"작품당" },
+    { id:"a4", name:"AI 영상 편집·음성·컷 분할", desc:"영상 제작 과정 중 반복 편집 작업", freq:"작품당" },
+    { id:"a5", name:"IP 검토 타부서 소통", desc:"IP 협의를 위한 내부 부서 간 커뮤니케이션", freq:"수시" },
+    { id:"a6", name:"AI 웹툰·영상 썸네일 작업", desc:"채널 등록용 썸네일 이미지 제작", freq:"작품당" },
+    { id:"a7", name:"작품 업로드 및 스케줄 관리", desc:"플랫폼 업로드 및 공개 일정 관리", freq:"수시" },
+    { id:"a8", name:"계약서 관리", desc:"계약서 파일 정리 및 현황 관리", freq:"수시" },
+    { id:"a9", name:"기안/지출결의서 작성", desc:"예산 집행 관련 내부 결재 서류 작성", freq:"수시" },
   ]},
 };
 
 var TYPES = [
-  { key:"outsource", label:"\uc678\uc8fc",    color:"var(--outsource)", bg:"var(--outsource-bg)", border:"var(--outsource-border)" },
-  { key:"freelance", label:"\ud504\ub9ac\ub79c\uc11c", color:"var(--freelance)", bg:"var(--freelance-bg)", border:"var(--freelance-border)" },
-  { key:"contract",  label:"\uacc4\uc57d\uc9c1",  color:"var(--contract)",  bg:"var(--contract-bg)",  border:"var(--contract-border)" },
-  { key:"auto",      label:"\uc790\ub3d9\ud654",  color:"var(--auto)",      bg:"var(--auto-bg)",      border:"var(--auto-border)" },
+  { key:"outsource", label:"외주",     color:"var(--outsource)", bg:"var(--outsource-bg)", border:"var(--outsource-border)" },
+  { key:"freelance", label:"프리랜서",  color:"var(--freelance)", bg:"var(--freelance-bg)", border:"var(--freelance-border)" },
+  { key:"contract",  label:"계약직",   color:"var(--contract)",  bg:"var(--contract-bg)",  border:"var(--contract-border)" },
+  { key:"auto",      label:"자동화",   color:"var(--auto)",      bg:"var(--auto-bg)",      border:"var(--auto-border)" },
+  { key:"keep",      label:"현행유지", color:"var(--keep)",      bg:"var(--keep-bg)",      border:"var(--keep-border)" },
 ];
 
 var totalTasks = Object.values(TEAMS).reduce(function(a, t) { return a + t.tasks.length; }, 0);
+
+// selections[taskId] = ["outsource", "auto"] 배열 형태
 var selections = {};
 var notes = {};
 var savedAt = null;
 var activeTeam = "marketing";
 var currentView = "select";
 var isOnline = false;
+
+// ═══ Helpers ═══
+function getTaskTypes(taskId) {
+  var v = selections[taskId];
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  // 이전 단일값 호환
+  return [v];
+}
+
+function hasAnySelection(taskId) {
+  return getTaskTypes(taskId).length > 0;
+}
+
+function getSelectedCount() {
+  var count = 0;
+  Object.keys(selections).forEach(function(k) {
+    if (hasAnySelection(k)) count++;
+  });
+  return count;
+}
+
+function esc(s) { return (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 // ═══ Init ═══
 async function init() {
@@ -305,8 +332,8 @@ async function init() {
 function updateSyncStatus() {
   var dot = document.getElementById("syncDot");
   var txt = document.getElementById("syncText");
-  if (isOnline) { dot.className = "sync-dot online"; txt.textContent = "Supabase \uc5f0\uacb0\ub428 \u2014 \uc2e4\uc2dc\uac04 \uacf5\uc720 \ud65c\uc131"; }
-  else { dot.className = "sync-dot offline"; txt.textContent = "\uc624\ud504\ub77c\uc778 \u2014 \ub85c\uceec \uc800\uc7a5 \ubaa8\ub4dc"; }
+  if (isOnline) { dot.className = "sync-dot online"; txt.textContent = "Supabase 연결됨 — 실시간 공유 활성"; }
+  else { dot.className = "sync-dot offline"; txt.textContent = "오프라인 — 로컬 저장 모드"; }
 }
 
 var toastTimer = null;
@@ -318,22 +345,23 @@ function showToast(msg, type) {
   toastTimer = setTimeout(function() { el.className = "toast hidden"; }, 2800);
 }
 
+// ═══ Save / Refresh ═══
 async function saveData() {
   var btn = document.getElementById("saveBtn");
-  btn.disabled = true; btn.textContent = "\uc800\uc7a5 \uc911...";
+  btn.disabled = true; btn.textContent = "저장 중...";
   localStorage.setItem("task-opt-backup", JSON.stringify({ selections: selections, notes: notes, savedAt: new Date().toLocaleString("ko-KR") }));
   try {
     await supaFetch("PATCH", { selections: selections, notes: notes, updated_at: new Date().toISOString() });
     var now = new Date().toLocaleString("ko-KR");
     savedAt = now; document.getElementById("savedTime").textContent = now;
     isOnline = true; updateSyncStatus();
-    showToast("\uc800\uc7a5 \uc644\ub8cc \u2014 URL\uc744 \uacf5\uc720\ud558\uba74 \ub204\uad6c\ub098 \ud655\uc778 \uac00\ub2a5", "success");
+    showToast("저장 완료 — URL을 공유하면 누구나 확인 가능", "success");
   } catch (e) {
     console.error("Save error:", e);
     isOnline = false; updateSyncStatus();
-    showToast("Supabase \uc800\uc7a5 \uc2e4\ud328 \u2014 \ub85c\uceec\uc5d0 \ubc31\uc5c5\ub428", "error");
+    showToast("Supabase 저장 실패 — 로컬에 백업됨", "error");
   }
-  btn.disabled = false; btn.textContent = "\uc800\uc7a5";
+  btn.disabled = false; btn.textContent = "저장";
 }
 
 async function refreshData() {
@@ -346,29 +374,41 @@ async function refreshData() {
       if (savedAt) document.getElementById("savedTime").textContent = savedAt;
       renderTeamTabs(); renderTaskList();
       if (currentView === "summary") renderSummary();
-      showToast("\ucd5c\uc2e0 \ub370\uc774\ud130\ub97c \uc11c\ubc84\uc5d0\uc11c \ubd88\ub7ec\uc654\uc2b5\ub2c8\ub2e4", "success");
+      showToast("최신 데이터를 서버에서 불러왔습니다", "success");
     }
-  } catch (e) { isOnline = false; updateSyncStatus(); showToast("\uc11c\ubc84 \uc5f0\uacb0 \uc2e4\ud328", "error"); }
+  } catch (e) { isOnline = false; updateSyncStatus(); showToast("서버 연결 실패", "error"); }
 }
 
 function toggleView() {
   currentView = currentView === "select" ? "summary" : "select";
   document.getElementById("selectView").style.display = currentView === "select" ? "" : "none";
   document.getElementById("summaryView").style.display = currentView === "summary" ? "" : "none";
-  document.getElementById("viewToggle").textContent = currentView === "select" ? "\uc694\uc57d \ubcf4\uae30" : "\ubd84\ub958 \uc785\ub825";
+  document.getElementById("viewToggle").textContent = currentView === "select" ? "요약 보기" : "분류 입력";
   if (currentView === "summary") renderSummary();
 }
 
-function toggleType(taskId, type) { selections[taskId] = selections[taskId] === type ? null : type; renderTeamTabs(); renderTaskList(); }
-function setNote(taskId, val) { notes[taskId] = val; }
-function esc(s) { return (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function getSelectedCount() { return Object.values(selections).filter(Boolean).length; }
+// ═══ 중복 선택 토글 ═══
+function toggleType(taskId, type) {
+  var current = getTaskTypes(taskId);
+  var idx = current.indexOf(type);
+  if (idx >= 0) {
+    current.splice(idx, 1);
+  } else {
+    current.push(type);
+  }
+  selections[taskId] = current.length > 0 ? current : null;
+  renderTeamTabs();
+  renderTaskList();
+}
 
+function setNote(taskId, val) { notes[taskId] = val; }
+
+// ═══ Render: Team Tabs ═══
 function renderTeamTabs() {
   var wrap = document.getElementById("teamTabs"); var html = "";
   Object.entries(TEAMS).forEach(function(entry) {
     var key = entry[0], team = entry[1];
-    var done = team.tasks.filter(function(t) { return selections[t.id]; }).length;
+    var done = team.tasks.filter(function(t) { return hasAnySelection(t.id); }).length;
     var isActive = activeTeam === key;
     var border = isActive ? "border-color:" + team.accent + "40" : "";
     html += '<button class="team-tab' + (isActive?" active":"") + '" style="' + border + '" onclick="activeTeam=\'' + key + '\';renderTeamTabs();renderTaskList();">' +
@@ -378,6 +418,7 @@ function renderTeamTabs() {
   wrap.innerHTML = html;
 }
 
+// ═══ Render: Task List ═══
 function renderTaskList() {
   var team = TEAMS[activeTeam]; var wrap = document.getElementById("taskList");
   var count = getSelectedCount();
@@ -385,73 +426,104 @@ function renderTaskList() {
   document.getElementById("progressFill").style.width = (count/totalTasks*100) + "%";
   var html = "";
   team.tasks.forEach(function(task, i) {
-    var sel = selections[task.id]; var selType = TYPES.find(function(t) { return t.key === sel; });
-    var borderColor = selType ? selType.border : "var(--border)";
-    var badgeHTML = selType ? '<span class="sel-badge" style="background:'+selType.bg+';color:'+selType.color+';border:1px solid '+selType.border+'">'+selType.label+'</span>' : "";
+    var types = getTaskTypes(task.id);
+    var hasSel = types.length > 0;
+    // 카드 보더: 선택된 타입 중 첫번째 색상 사용
+    var firstType = hasSel ? TYPES.find(function(t) { return t.key === types[0]; }) : null;
+    var borderColor = firstType ? firstType.border : "var(--border)";
+
+    // 선택된 뱃지들
+    var badgesHTML = types.map(function(tk) {
+      var tp = TYPES.find(function(t) { return t.key === tk; });
+      return tp ? '<span class="sel-badge" style="background:'+tp.bg+';color:'+tp.color+';border:1px solid '+tp.border+'">'+tp.label+'</span>' : "";
+    }).join("");
+
+    // 버튼들
     var btnsHTML = TYPES.map(function(t) {
-      var isAct = sel === t.key;
+      var isAct = types.indexOf(t.key) >= 0;
       var style = isAct ? "background:"+t.bg+";color:"+t.color+";border-color:"+t.border+";font-weight:700" : "";
       return '<button class="type-btn'+(isAct?" active":"")+'" style="'+style+'" onclick="toggleType(\''+task.id+"','"+t.key+'\')">'+t.label+'</button>';
     }).join("");
-    var noteHTML = sel ? '<div class="task-note"><input type="text" value="'+esc(notes[task.id]||"")+'" placeholder="\uba54\ubaa8 (\uc120\uc815 \uc774\uc720, \ub2f4\ub2f9\uc790 \ub4f1)" onchange="setNote(\''+task.id+'\', this.value)"></div>' : "";
+
+    var noteHTML = hasSel ? '<div class="task-note"><input type="text" value="'+esc(notes[task.id]||"")+'" placeholder="메모 (선정 이유, 담당자 등)" onchange="setNote(\''+task.id+'\', this.value)"></div>' : "";
+
     html += '<div class="task-card" style="border-color:'+borderColor+';animation-delay:'+i*0.03+'s">' +
       '<div class="task-top"><div class="task-info"><div class="task-name-row">' +
-      '<span class="task-name">'+task.name+'</span><span class="freq-badge">'+task.freq+'</span>'+badgeHTML+'</div>' +
+      '<span class="task-name">'+task.name+'</span><span class="freq-badge">'+task.freq+'</span>'+badgesHTML+'</div>' +
       '<div class="task-desc">'+task.desc+'</div></div><div class="type-btns">'+btnsHTML+'</div></div>'+noteHTML+'</div>';
   });
   wrap.innerHTML = html;
 }
 
+// ═══ Render: Summary ═══
 function renderSummary() {
   var wrap = document.getElementById("summaryView");
+  // 중복 선택이므로 한 업무가 여러 타입에 나올 수 있음
   var byType = {}; TYPES.forEach(function(t) { byType[t.key] = []; });
   Object.entries(TEAMS).forEach(function(entry) {
     var key = entry[0], team = entry[1];
     team.tasks.forEach(function(task) {
-      var t = selections[task.id];
-      if (t) byType[t].push({ id:task.id, name:task.name, desc:task.desc, freq:task.freq, teamKey:key, teamLabel:team.label, teamAccent:team.accent });
+      var types = getTaskTypes(task.id);
+      types.forEach(function(tk) {
+        byType[tk].push({ id:task.id, name:task.name, desc:task.desc, freq:task.freq, teamKey:key, teamLabel:team.label, teamAccent:team.accent, allTypes: types });
+      });
     });
   });
+
   var count = getSelectedCount(); var html = "";
   html += '<div class="cover"><div class="cover-label">Summary Report</div>' +
-    '<h1 style="font-size:clamp(20px,4vw,28px)">\uc778\ub825 \ucd5c\uc801\ud654 \uc694\uc57d \ubcf4\uace0</h1>' +
-    '<p style="font-size:12px;color:var(--text-faint)">'+count+'\uac1c \uc5c5\ubb34 \ubd84\ub958 \uc644\ub8cc'+(savedAt?" \xb7 \ub9c8\uc9c0\ub9c9 \uc800\uc7a5: "+savedAt:"")+'</p></div>';
+    '<h1 style="font-size:clamp(20px,4vw,28px)">인력 최적화 요약 보고</h1>' +
+    '<p style="font-size:12px;color:var(--text-faint)">'+count+'개 업무 분류 완료'+(savedAt?" · 마지막 저장: "+savedAt:"")+'</p></div>';
+
   html += '<div class="stat-grid">';
   TYPES.forEach(function(t) {
     html += '<div class="stat-card" style="border:1px solid '+t.border+'"><div class="stat-type" style="color:'+t.color+'">'+t.label+'</div>' +
-      '<div class="stat-num" style="color:'+t.color+'">'+byType[t.key].length+'</div><div class="stat-total">/ '+totalTasks+'</div></div>';
+      '<div class="stat-num" style="color:'+t.color+'">'+byType[t.key].length+'</div><div class="stat-total">건</div></div>';
   });
   html += '</div>';
+
   TYPES.forEach(function(t) {
     var items = byType[t.key]; if (!items.length) return;
     html += '<div class="section-block"><div class="section-head" style="border-bottom:1px solid '+t.border+'">' +
       '<div class="section-marker" style="background:'+t.color+'"></div><h3 style="color:'+t.color+'">'+t.label+'</h3>' +
-      '<span class="section-count" style="color:'+t.color+';background:'+t.bg+';border:1px solid '+t.border+'">'+items.length+'\uac74</span></div>' +
-      '<div class="data-table"><div class="table-header"><div>\uc18c\uc18d</div><div>\uc5c5\ubb34\uba85</div><div>\ube48\ub3c4</div><div>\uba54\ubaa8</div></div>';
+      '<span class="section-count" style="color:'+t.color+';background:'+t.bg+';border:1px solid '+t.border+'">'+items.length+'건</span></div>' +
+      '<div class="data-table"><div class="table-header"><div>소속</div><div>업무명</div><div>빈도</div><div>메모</div></div>';
     items.forEach(function(task) {
+      // 다른 선택 타입도 표시
+      var otherBadges = task.allTypes.filter(function(tk) { return tk !== t.key; }).map(function(tk) {
+        var tp = TYPES.find(function(x) { return x.key === tk; });
+        return tp ? '<span class="sel-badge" style="background:'+tp.bg+';color:'+tp.color+';border:1px solid '+tp.border+';font-size:9px">'+tp.label+'</span>' : "";
+      }).join("");
+
       html += '<div class="table-row"><div><span class="team-badge" style="color:'+task.teamAccent+';background:'+task.teamAccent+'15">'+task.teamLabel+'</span></div>' +
-        '<div><div class="row-name">'+task.name+'</div><div class="row-desc">'+task.desc+'</div></div>' +
-        '<div class="row-freq">'+task.freq+'</div><div class="row-note">'+(notes[task.id]?esc(notes[task.id]):"\u2014")+'</div></div>';
+        '<div><div class="row-name">'+task.name+(otherBadges?' '+otherBadges:'')+'</div><div class="row-desc">'+task.desc+'</div></div>' +
+        '<div class="row-freq">'+task.freq+'</div><div class="row-note">'+(notes[task.id]?esc(notes[task.id]):"—")+'</div></div>';
+      // Mobile
       html += '<div class="table-row-mobile"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
         '<span class="team-badge" style="color:'+task.teamAccent+';background:'+task.teamAccent+'15">'+task.teamLabel+'</span>' +
         '<span style="font-size:10px;color:var(--text-faint)">'+task.freq+'</span></div>' +
-        '<div class="row-name">'+task.name+'</div>'+(notes[task.id]?'<div style="font-size:11px;color:var(--text-faint);margin-top:4px">'+esc(notes[task.id])+'</div>':'')+'</div>';
+        '<div class="row-name">'+task.name+'</div>' +
+        (otherBadges ? '<div style="margin-top:4px">'+otherBadges+'</div>' : '') +
+        (notes[task.id] ? '<div style="font-size:11px;color:var(--text-faint);margin-top:4px">'+esc(notes[task.id])+'</div>' : '') + '</div>';
     });
     html += '</div></div>';
   });
+
+  // 미분류
   var unsel = [];
   Object.entries(TEAMS).forEach(function(entry) {
     var key = entry[0], team = entry[1];
     team.tasks.forEach(function(task) {
-      if (!selections[task.id]) unsel.push({ name:task.name, freq:task.freq, teamLabel:team.label, teamAccent:team.accent });
+      if (!hasAnySelection(task.id)) unsel.push({ name:task.name, freq:task.freq, teamLabel:team.label, teamAccent:team.accent });
     });
   });
+
   if (unsel.length === 0) {
-    html += '<div class="complete-banner"><p>\ubaa8\ub4e0 \uc5c5\ubb34\uac00 \ubd84\ub958 \uc644\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4</p></div>';
+    html += '<div class="complete-banner"><p>모든 업무가 분류 완료되었습니다</p></div>';
   } else {
     html += '<div class="unselected-section"><div class="section-head" style="border-bottom:1px solid var(--border)">' +
-      '<div class="section-marker" style="background:var(--text-faint)"></div><h3 style="color:var(--text-ghost)">\ubbf8\ubd84\ub958 \uc5c5\ubb34</h3>' +
-      '<span class="section-count" style="color:var(--text-faint);background:var(--border)">'+unsel.length+'\uac74</span></div><div class="data-table">';
+      '<div class="section-marker" style="background:var(--text-faint)"></div><h3 style="color:var(--text-faint)">미분류 업무</h3>' +
+      '<span class="section-count" style="color:var(--text-faint);background:var(--border)">'+unsel.length+'건</span></div><div class="data-table">';
     unsel.forEach(function(task) {
       html += '<div class="unselected-row"><span class="team-badge" style="color:'+task.teamAccent+';background:'+task.teamAccent+'15">'+task.teamLabel+'</span>' +
         '<span style="font-size:12px;color:var(--text-faint)">'+task.name+'</span>' +
