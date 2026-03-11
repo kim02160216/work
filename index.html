@@ -1,409 +1,468 @@
-import { useState, useEffect, useCallback } from "react";
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단순업무 인력 최적화 보고</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #111118;
+  --surface: #1A1A24;
+  --card: #22222E;
+  --border: #2E2E3E;
+  --border-hover: #42425A;
+  --text: #F0F0F5;
+  --text-dim: #DCDCE6;
+  --text-muted: #A0A0B8;
+  --text-faint: #78788E;
+  --text-ghost: #5A5A72;
+  --text-void: #42425A;
+  --outsource: #F87171; --outsource-bg: rgba(248,113,113,0.15); --outsource-border: rgba(248,113,113,0.35);
+  --freelance: #C084FC; --freelance-bg: rgba(192,132,252,0.15); --freelance-border: rgba(192,132,252,0.35);
+  --contract: #FBBF24; --contract-bg: rgba(251,191,36,0.15); --contract-border: rgba(251,191,36,0.35);
+  --auto: #34D399; --auto-bg: rgba(52,211,153,0.15); --auto-border: rgba(52,211,153,0.35);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+::selection { background: rgba(192,132,252,0.3); }
+body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
-const TEAMS = {
-  marketing: {
-    label: "마케팅팀",
-    accent: "#60A5FA",
-    tasks: [
-      { id: "m1", name: "퍼포먼스 효율 데이터 정리", desc: "광고 채널별 성과 지표 수집 및 정리", freq: "주간" },
-      { id: "m2", name: "SNS 콘텐츠별 데이터 정리", desc: "채널별 좋아요·공유·도달 데이터 수집", freq: "주간" },
-      { id: "m3", name: "기안 및 지출결의서 작성", desc: "예산 집행 관련 내부 결재 서류 작성", freq: "수시" },
-      { id: "m4", name: "주간보고 작성", desc: "주간 마케팅 성과 보고서 작성", freq: "주간" },
-      { id: "m5", name: "SNS 반응 보고", desc: "SNS 댓글·반응 모니터링 및 보고", freq: "주간" },
-    ],
-  },
-  domestic: {
-    label: "국내 플랫폼 사업팀",
-    accent: "#34D399",
-    tasks: [
-      { id: "d1", name: "CS 결제 해지·환불 처리", desc: "결제 관련 고객 문의 답변 및 처리", freq: "일간" },
-      { id: "d2", name: "이용 정책 관련 답변 처리", desc: "서비스 이용 정책 문의 응대", freq: "일간" },
-      { id: "d3", name: "기관 신고 탈퇴 민원 처리", desc: "기관 관련 신고·탈퇴 민원 대응", freq: "수시" },
-      { id: "d4", name: "굿즈 발주서 작성", desc: "굿즈 제작 발주 관련 서류 작성", freq: "월간" },
-      { id: "d5", name: "사이트 모니터링(오전/오후)", desc: "서비스 이상 유무 정기 점검", freq: "일2회" },
-      { id: "d6", name: "군인요금제 승인 처리", desc: "군인 인증 후 요금제 승인 작업", freq: "수시" },
-      { id: "d7", name: "메인 배너 배치 요청", desc: "북스 메인 배너 파일·일시·링크 등록", freq: "수시" },
-      { id: "d8", name: "기안/지출결의서 작성", desc: "예산 집행 관련 내부 결재 서류 작성", freq: "수시" },
-      { id: "d9", name: "DB 데이터 추출", desc: "운영 DB에서 필요 데이터 추출", freq: "수시" },
-    ],
-  },
-  global: {
-    label: "글로벌팀",
-    accent: "#FBBF24",
-    tasks: [
-      { id: "g1", name: "소설 번역용 단어집 생성", desc: "번역 일관성을 위한 용어집 제작", freq: "작품당" },
-      { id: "g2", name: "AI 번역 회차 제목·내용 검수", desc: "AI 번역 결과물 품질 검수 (외주 진행 중)", freq: "일간" },
-      { id: "g3", name: "에딧팅 회차 검수 및 업로드", desc: "편집 완료 회차 최종 확인 후 등록", freq: "일간" },
-      { id: "g4", name: "일별 데이터 모니터링", desc: "글로벌 서비스 일별 지표 확인", freq: "일간" },
-      { id: "g5", name: "작가·에딧터 송금", desc: "정산 대상자 송금 처리 (API 있으나 개발 미정)", freq: "월간" },
-      { id: "g6", name: "오리지널 콘텐츠·댓글 모니터링", desc: "오리지널 작품 반응 및 댓글 모니터링", freq: "일간" },
-      { id: "g7", name: "프리미엄 전환 작가 승인·정산 등록", desc: "프리미엄 전환 신청 검토 및 정산 정보 확인", freq: "수시" },
-      { id: "g8", name: "작품 메인 배너 세팅", desc: "노출 대상·일정 기반 배너 세팅 작업", freq: "수시" },
-      { id: "g9", name: "개별 데이터 추출", desc: "필요 데이터 건별 수동 추출", freq: "수시" },
-      { id: "g10", name: "기안/지출결의서 작성", desc: "예산 집행 관련 내부 결재 서류 작성", freq: "수시" },
-    ],
-  },
-  ai: {
-    label: "AI 아트사업팀",
-    accent: "#C084FC",
-    tasks: [
-      { id: "a1", name: "AI 크레딧·계정 관리", desc: "AI 툴 크레딧 현황 확인 및 계정 관리", freq: "수시" },
-      { id: "a2", name: "AI 크리에이터 발굴·컨택", desc: "신규 크리에이터 리서치 및 초기 컨택", freq: "수시" },
-      { id: "a3", name: "AI 웹툰 콘티·후보정·식자", desc: "웹툰 제작 과정 중 반복 작업 부분", freq: "작품당" },
-      { id: "a4", name: "AI 영상 편집·음성·컷 분할", desc: "영상 제작 과정 중 반복 편집 작업", freq: "작품당" },
-      { id: "a5", name: "IP 검토 타부서 소통", desc: "IP 협의를 위한 내부 부서 간 커뮤니케이션", freq: "수시" },
-      { id: "a6", name: "AI 웹툰·영상 썸네일 작업", desc: "채널 등록용 썸네일 이미지 제작", freq: "작품당" },
-      { id: "a7", name: "작품 업로드 및 스케줄 관리", desc: "플랫폼 업로드 및 공개 일정 관리", freq: "수시" },
-      { id: "a8", name: "계약서 관리", desc: "계약서 파일 정리 및 현황 관리", freq: "수시" },
-      { id: "a9", name: "기안/지출결의서 작성", desc: "예산 집행 관련 내부 결재 서류 작성", freq: "수시" },
-    ],
-  },
+.header { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 1080px; margin: 0 auto; padding: 0 16px; height: 54px; display: flex; align-items: center; justify-content: space-between; }
+.header-logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 26px; height: 26px; background: linear-gradient(135deg, #C084FC, #60A5FA); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+.logo-icon span { width: 9px; height: 9px; border-radius: 2px; border: 2px solid white; display: block; }
+.header-title { font-size: 13px; font-weight: 700; }
+.header-sub { font-size: 10px; color: var(--text-muted); }
+.header-actions { display: flex; gap: 6px; align-items: center; }
+.header-time { font-size: 10px; color: var(--text-faint); margin-right: 4px; }
+
+.btn { border: none; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 600; padding: 7px 14px; border-radius: 5px; transition: all 0.15s; }
+.btn:active { transform: scale(0.97); }
+.btn-ghost { background: var(--card); color: var(--text-muted); border: 1px solid var(--border); }
+.btn-ghost:hover { color: var(--text); background: var(--border-hover); border-color: var(--border-hover); }
+.btn-primary { background: linear-gradient(135deg, #7C3AED, #6366F1); color: #fff; font-weight: 700; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.4; cursor: default; }
+
+.toast { position: fixed; top: 64px; right: 16px; z-index: 999; padding: 10px 18px; border-radius: 6px; font-size: 12px; font-weight: 600; max-width: calc(100vw - 32px); animation: toastIn 0.3s ease; pointer-events: none; }
+.toast.success { background: #0E1A14; border: 1px solid #1A3D2A; color: var(--auto); }
+.toast.error { background: #2D1215; border: 1px solid #5C2023; color: var(--outsource); }
+.toast.hidden { display: none; }
+
+.container { max-width: 1080px; margin: 0 auto; padding: 20px 16px 80px; }
+
+.cover { background: linear-gradient(135deg, var(--card) 0%, var(--border) 100%); border: 1px solid var(--border); border-radius: 10px; padding: 28px 24px 24px; margin-bottom: 20px; }
+.cover-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; margin-bottom: 12px; }
+.cover h1 { font-family: 'DM Serif Display', serif; font-size: clamp(22px, 5vw, 32px); color: var(--text); font-weight: 400; line-height: 1.3; margin-bottom: 8px; }
+.cover p { font-size: 13px; color: var(--text-muted); line-height: 1.7; max-width: 500px; }
+.progress-wrap { margin-top: 20px; display: flex; align-items: center; gap: 14px; }
+.progress-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #7C3AED, #60A5FA); border-radius: 2px; transition: width 0.4s ease; }
+.progress-num { font-size: 12px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+.progress-num .dim { color: var(--text-ghost); }
+
+.sync-status { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-faint); margin-top: 12px; }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; }
+.sync-dot.online { background: var(--auto); box-shadow: 0 0 6px var(--auto); }
+.sync-dot.offline { background: var(--outsource); }
+
+.team-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
+.team-tab { padding: 14px 10px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); cursor: pointer; text-align: center; transition: all 0.15s; font-family: inherit; }
+.team-tab:hover { border-color: var(--border-hover); }
+.team-tab.active { background: var(--border); }
+.team-tab .tab-label { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+.team-tab .tab-count { font-size: 10px; color: var(--text-faint); margin-top: 3px; }
+.team-tab.active .tab-label { font-weight: 700; }
+
+.task-list { display: flex; flex-direction: column; gap: 6px; }
+.task-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; transition: border-color 0.2s; animation: fadeIn 0.25s ease both; }
+.task-card:hover { border-color: var(--border-hover); }
+.task-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.task-info { flex: 1; min-width: 160px; }
+.task-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 3px; }
+.task-name { font-size: 13px; font-weight: 700; color: var(--text-dim); }
+.freq-badge { font-size: 10px; background: var(--border); color: var(--text-muted); padding: 2px 8px; border-radius: 3px; }
+.sel-badge { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 3px; }
+.task-desc { font-size: 11px; color: var(--text-faint); }
+.type-btns { display: flex; gap: 4px; flex-shrink: 0; }
+.type-btn { padding: 6px 12px; border-radius: 5px; font-size: 11px; font-weight: 500; cursor: pointer; background: var(--card); color: var(--text-muted); border: 1px solid var(--border-hover); font-family: inherit; transition: all 0.15s; }
+.type-btn:hover { border-color: var(--text-ghost); color: var(--text-dim); }
+.task-note { margin-top: 10px; }
+.task-note input { width: 100%; padding: 7px 12px; border-radius: 5px; border: 1px solid var(--border-hover); font-size: 11px; color: var(--text-dim); background: var(--card); font-family: inherit; outline: none; }
+.task-note input:focus { border-color: var(--text-faint); }
+.task-note input::placeholder { color: var(--text-faint); }
+
+.summary-container { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 32px; }
+.stat-card { background: var(--surface); border-radius: 8px; padding: 20px 16px; text-align: center; }
+.stat-type { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 36px; line-height: 1; }
+.stat-total { font-size: 10px; color: var(--text-void); margin-top: 4px; }
+
+.section-block { margin-bottom: 28px; }
+.section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; }
+.section-marker { width: 3px; height: 20px; border-radius: 2px; }
+.section-head h3 { font-size: 15px; font-weight: 800; }
+.section-count { font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 4px; margin-left: auto; }
+
+.data-table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; width: 100%; }
+.table-header { display: grid; grid-template-columns: 110px 1fr 70px 180px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.table-header div { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--text-faint); }
+.table-row { display: grid; grid-template-columns: 110px 1fr 70px 180px; padding: 12px 16px; align-items: center; border-bottom: 1px solid var(--card); }
+.table-row:last-child { border-bottom: none; }
+.table-row-mobile { display: none; padding: 12px 16px; border-bottom: 1px solid var(--card); }
+.table-row-mobile:last-child { border-bottom: none; }
+
+.team-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 3px; display: inline-block; }
+.row-name { font-size: 12px; font-weight: 600; color: var(--text-dim); }
+.row-desc { font-size: 10px; color: var(--text-faint); margin-top: 1px; }
+.row-freq { font-size: 11px; color: var(--text-muted); }
+.row-note { font-size: 11px; color: var(--text-faint); }
+
+.unselected-section { margin-top: 20px; padding-top: 24px; border-top: 1px solid var(--border); }
+.unselected-row { padding: 10px 16px; border-bottom: 1px solid var(--card); opacity: 0.45; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.unselected-row:last-child { border-bottom: none; }
+.complete-banner { text-align: center; padding: 28px; border-radius: 8px; margin-top: 20px; border: 1px solid var(--auto-border); background: var(--auto-bg); }
+.complete-banner p { font-size: 14px; font-weight: 700; color: var(--auto); }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .team-tabs { grid-template-columns: 1fr 1fr; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .type-btns { flex-wrap: wrap; }
+  .type-btn { padding: 6px 10px; font-size: 10px; }
+  .header-sub, .header-time { display: none; }
+  .table-header, .table-row { display: none; }
+  .table-row-mobile { display: block; }
+  .task-top { flex-direction: column; gap: 10px; }
+  .type-btns { width: 100%; }
+  .type-btn { flex: 1; text-align: center; }
+  .stat-num { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="logo-icon"><span></span></div>
+      <div>
+        <div class="header-title">업무 최적화 보고</div>
+        <div class="header-sub">Supabase 실시간 공유</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="header-time" id="savedTime"></span>
+      <button class="btn btn-ghost" onclick="refreshData()">새로고침</button>
+      <button class="btn btn-ghost" id="viewToggle" onclick="toggleView()">요약 보기</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="saveData()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<div id="selectView" class="container">
+  <div class="cover">
+    <div class="cover-label">Task Classification System</div>
+    <h1>단순업무 인력 최적화</h1>
+    <p>각 업무별 외주 · 프리랜서 · 계약직 · 자동화 유형을 선택하세요.<br>
+    저장하면 이 페이지 URL을 공유받은 누구나 동일 데이터를 확인할 수 있습니다.</p>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-num"><span id="progressDone">0</span><span class="dim" id="progressTotal">/33</span></span>
+    </div>
+    <div class="sync-status">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncText">연결 확인 중...</span>
+    </div>
+  </div>
+  <div class="team-tabs" id="teamTabs"></div>
+  <div class="task-list" id="taskList"></div>
+</div>
+
+<div id="summaryView" class="summary-container" style="display:none;"></div>
+
+<div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="text-align:center;">
+    <div style="width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--text-muted);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;"></div>
+    <div style="font-size:12px;color:var(--text-faint);">Supabase 연결 중...</div>
+  </div>
+</div>
+
+<script>
+// ═══ Supabase Config ═══
+const SUPA_URL = "https://szlmibfbimyocppqcukg.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6bG1pYmZiaW15b2NwcHFjdWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxOTIyMjMsImV4cCI6MjA4ODc2ODIyM30.UWPzC0aMZWM-PKXHU8fvd5aeKX7wqUitxWLep7trW_Y";
+const TABLE = "task_selections";
+const ROW_ID = "shared";
+
+async function supaFetch(method, body) {
+  const base = SUPA_URL + "/rest/v1/" + TABLE + "?id=eq." + ROW_ID;
+  const url = method === "GET" ? base + "&select=*" : base;
+  const h = { "apikey": SUPA_KEY, "Authorization": "Bearer " + SUPA_KEY, "Content-Type": "application/json" };
+  if (method === "PATCH") h["Prefer"] = "return=representation";
+  const opts = { method: method, headers: h };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json().catch(function() { return null; });
+}
+
+// ═══ Data ═══
+var TEAMS = {
+  marketing: { label: "\ub9c8\ucf00\ud305\ud300", accent: "#60A5FA", tasks: [
+    { id:"m1", name:"\ud37c\ud3ec\uba3c\uc2a4 \ud6a8\uc728 \ub370\uc774\ud130 \uc815\ub9ac", desc:"\uad11\uace0 \ucc44\ub110\ubcc4 \uc131\uacfc \uc9c0\ud45c \uc218\uc9d1 \ubc0f \uc815\ub9ac", freq:"\uc8fc\uac04" },
+    { id:"m2", name:"SNS \ucf58\ud150\uce20\ubcc4 \ub370\uc774\ud130 \uc815\ub9ac", desc:"\ucc44\ub110\ubcc4 \uc88b\uc544\uc694\xb7\uacf5\uc720\xb7\ub3c4\ub2ec \ub370\uc774\ud130 \uc218\uc9d1", freq:"\uc8fc\uac04" },
+    { id:"m3", name:"\uae30\uc548 \ubc0f \uc9c0\ucd9c\uacb0\uc758\uc11c \uc791\uc131", desc:"\uc608\uc0b0 \uc9d1\ud589 \uad00\ub828 \ub0b4\ubd80 \uacb0\uc7ac \uc11c\ub958 \uc791\uc131", freq:"\uc218\uc2dc" },
+    { id:"m4", name:"\uc8fc\uac04\ubcf4\uace0 \uc791\uc131", desc:"\uc8fc\uac04 \ub9c8\ucf00\ud305 \uc131\uacfc \ubcf4\uace0\uc11c \uc791\uc131", freq:"\uc8fc\uac04" },
+    { id:"m5", name:"SNS \ubc18\uc751 \ubcf4\uace0", desc:"SNS \ub313\uae00\xb7\ubc18\uc751 \ubaa8\ub2c8\ud130\ub9c1 \ubc0f \ubcf4\uace0", freq:"\uc8fc\uac04" },
+  ]},
+  domestic: { label: "\uad6d\ub0b4 \ud50c\ub7ab\ud3fc \uc0ac\uc5c5\ud300", accent: "#34D399", tasks: [
+    { id:"d1", name:"CS \uacb0\uc81c \ud574\uc9c0\xb7\ud658\ubd88 \ucc98\ub9ac", desc:"\uacb0\uc81c \uad00\ub828 \uace0\uac1d \ubb38\uc758 \ub2f5\ubcc0 \ubc0f \ucc98\ub9ac", freq:"\uc77c\uac04" },
+    { id:"d2", name:"\uc774\uc6a9 \uc815\ucc45 \uad00\ub828 \ub2f5\ubcc0 \ucc98\ub9ac", desc:"\uc11c\ube44\uc2a4 \uc774\uc6a9 \uc815\ucc45 \ubb38\uc758 \uc751\ub300", freq:"\uc77c\uac04" },
+    { id:"d3", name:"\uae30\uad00 \uc2e0\uace0 \ud0c8\ud1f4 \ubbfc\uc6d0 \ucc98\ub9ac", desc:"\uae30\uad00 \uad00\ub828 \uc2e0\uace0\xb7\ud0c8\ud1f4 \ubbfc\uc6d0 \ub300\uc751", freq:"\uc218\uc2dc" },
+    { id:"d4", name:"\uad7f\uc988 \ubc1c\uc8fc\uc11c \uc791\uc131", desc:"\uad7f\uc988 \uc81c\uc791 \ubc1c\uc8fc \uad00\ub828 \uc11c\ub958 \uc791\uc131", freq:"\uc6d4\uac04" },
+    { id:"d5", name:"\uc0ac\uc774\ud2b8 \ubaa8\ub2c8\ud130\ub9c1(\uc624\uc804/\uc624\ud6c4)", desc:"\uc11c\ube44\uc2a4 \uc774\uc0c1 \uc720\ubb34 \uc815\uae30 \uc810\uac80", freq:"\uc77c2\ud68c" },
+    { id:"d6", name:"\uad70\uc778\uc694\uae08\uc81c \uc2b9\uc778 \ucc98\ub9ac", desc:"\uad70\uc778 \uc778\uc99d \ud6c4 \uc694\uae08\uc81c \uc2b9\uc778 \uc791\uc5c5", freq:"\uc218\uc2dc" },
+    { id:"d7", name:"\uba54\uc778 \ubc30\ub108 \ubc30\uce58 \uc694\uccad", desc:"\ubd81\uc2a4 \uba54\uc778 \ubc30\ub108 \ud30c\uc77c\xb7\uc77c\uc2dc\xb7\ub9c1\ud06c \ub4f1\ub85d", freq:"\uc218\uc2dc" },
+    { id:"d8", name:"\uae30\uc548/\uc9c0\ucd9c\uacb0\uc758\uc11c \uc791\uc131", desc:"\uc608\uc0b0 \uc9d1\ud589 \uad00\ub828 \ub0b4\ubd80 \uacb0\uc7ac \uc11c\ub958 \uc791\uc131", freq:"\uc218\uc2dc" },
+    { id:"d9", name:"DB \ub370\uc774\ud130 \ucd94\ucd9c", desc:"\uc6b4\uc601 DB\uc5d0\uc11c \ud544\uc694 \ub370\uc774\ud130 \ucd94\ucd9c", freq:"\uc218\uc2dc" },
+  ]},
+  global: { label: "\uae00\ub85c\ubc8c\ud300", accent: "#FBBF24", tasks: [
+    { id:"g1", name:"\uc18c\uc124 \ubc88\uc5ed\uc6a9 \ub2e8\uc5b4\uc9d1 \uc0dd\uc131", desc:"\ubc88\uc5ed \uc77c\uad00\uc131\uc744 \uc704\ud55c \uc6a9\uc5b4\uc9d1 \uc81c\uc791", freq:"\uc791\ud488\ub2f9" },
+    { id:"g2", name:"AI \ubc88\uc5ed \ud68c\ucc28 \uc81c\ubaa9\xb7\ub0b4\uc6a9 \uac80\uc218", desc:"AI \ubc88\uc5ed \uacb0\uacfc\ubb3c \ud488\uc9c8 \uac80\uc218 (\uc678\uc8fc \uc9c4\ud589 \uc911)", freq:"\uc77c\uac04" },
+    { id:"g3", name:"\uc5d0\ub527\ud305 \ud68c\ucc28 \uac80\uc218 \ubc0f \uc5c5\ub85c\ub4dc", desc:"\ud3b8\uc9d1 \uc644\ub8cc \ud68c\ucc28 \ucd5c\uc885 \ud655\uc778 \ud6c4 \ub4f1\ub85d", freq:"\uc77c\uac04" },
+    { id:"g4", name:"\uc77c\ubcc4 \ub370\uc774\ud130 \ubaa8\ub2c8\ud130\ub9c1", desc:"\uae00\ub85c\ubc8c \uc11c\ube44\uc2a4 \uc77c\ubcc4 \uc9c0\ud45c \ud655\uc778", freq:"\uc77c\uac04" },
+    { id:"g5", name:"\uc791\uac00\xb7\uc5d0\ub527\ud130 \uc1a1\uae08", desc:"\uc815\uc0b0 \ub300\uc0c1\uc790 \uc1a1\uae08 \ucc98\ub9ac (API \uc788\uc73c\ub098 \uac1c\ubc1c \ubbf8\uc815)", freq:"\uc6d4\uac04" },
+    { id:"g6", name:"\uc624\ub9ac\uc9c0\ub110 \ucf58\ud150\uce20\xb7\ub313\uae00 \ubaa8\ub2c8\ud130\ub9c1", desc:"\uc624\ub9ac\uc9c0\ub110 \uc791\ud488 \ubc18\uc751 \ubc0f \ub313\uae00 \ubaa8\ub2c8\ud130\ub9c1", freq:"\uc77c\uac04" },
+    { id:"g7", name:"\ud504\ub9ac\ubbf8\uc5c4 \uc804\ud658 \uc791\uac00 \uc2b9\uc778\xb7\uc815\uc0b0 \ub4f1\ub85d", desc:"\ud504\ub9ac\ubbf8\uc5c4 \uc804\ud658 \uc2e0\uccad \uac80\ud1a0 \ubc0f \uc815\uc0b0 \uc815\ubcf4 \ud655\uc778", freq:"\uc218\uc2dc" },
+    { id:"g8", name:"\uc791\ud488 \uba54\uc778 \ubc30\ub108 \uc138\ud305", desc:"\ub178\ucd9c \ub300\uc0c1\xb7\uc77c\uc815 \uae30\ubc18 \ubc30\ub108 \uc138\ud305 \uc791\uc5c5", freq:"\uc218\uc2dc" },
+    { id:"g9", name:"\uac1c\ubcc4 \ub370\uc774\ud130 \ucd94\ucd9c", desc:"\ud544\uc694 \ub370\uc774\ud130 \uac74\ubcc4 \uc218\ub3d9 \ucd94\ucd9c", freq:"\uc218\uc2dc" },
+    { id:"g10", name:"\uae30\uc548/\uc9c0\ucd9c\uacb0\uc758\uc11c \uc791\uc131", desc:"\uc608\uc0b0 \uc9d1\ud589 \uad00\ub828 \ub0b4\ubd80 \uacb0\uc7ac \uc11c\ub958 \uc791\uc131", freq:"\uc218\uc2dc" },
+  ]},
+  ai: { label: "AI \uc544\ud2b8\uc0ac\uc5c5\ud300", accent: "#C084FC", tasks: [
+    { id:"a1", name:"AI \ud06c\ub808\ub527\xb7\uacc4\uc815 \uad00\ub9ac", desc:"AI \ud234 \ud06c\ub808\ub527 \ud604\ud669 \ud655\uc778 \ubc0f \uacc4\uc815 \uad00\ub9ac", freq:"\uc218\uc2dc" },
+    { id:"a2", name:"AI \ud06c\ub9ac\uc5d0\uc774\ud130 \ubc1c\uad74\xb7\ucee8\ud0dd", desc:"\uc2e0\uaddc \ud06c\ub9ac\uc5d0\uc774\ud130 \ub9ac\uc11c\uce58 \ubc0f \ucd08\uae30 \ucee8\ud0dd", freq:"\uc218\uc2dc" },
+    { id:"a3", name:"AI \uc6f9\ud230 \ucf58\ud2f0\xb7\ud6c4\ubcf4\uc815\xb7\uc2dd\uc790", desc:"\uc6f9\ud230 \uc81c\uc791 \uacfc\uc815 \uc911 \ubc18\ubcf5 \uc791\uc5c5 \ubd80\ubd84", freq:"\uc791\ud488\ub2f9" },
+    { id:"a4", name:"AI \uc601\uc0c1 \ud3b8\uc9d1\xb7\uc74c\uc131\xb7\ucef7 \ubd84\ud560", desc:"\uc601\uc0c1 \uc81c\uc791 \uacfc\uc815 \uc911 \ubc18\ubcf5 \ud3b8\uc9d1 \uc791\uc5c5", freq:"\uc791\ud488\ub2f9" },
+    { id:"a5", name:"IP \uac80\ud1a0 \ud0c0\ubd80\uc11c \uc18c\ud1b5", desc:"IP \ud611\uc758\ub97c \uc704\ud55c \ub0b4\ubd80 \ubd80\uc11c \uac04 \ucee4\ubba4\ub2c8\ucf00\uc774\uc158", freq:"\uc218\uc2dc" },
+    { id:"a6", name:"AI \uc6f9\ud230\xb7\uc601\uc0c1 \uc378\ub124\uc77c \uc791\uc5c5", desc:"\ucc44\ub110 \ub4f1\ub85d\uc6a9 \uc378\ub124\uc77c \uc774\ubbf8\uc9c0 \uc81c\uc791", freq:"\uc791\ud488\ub2f9" },
+    { id:"a7", name:"\uc791\ud488 \uc5c5\ub85c\ub4dc \ubc0f \uc2a4\ucf00\uc904 \uad00\ub9ac", desc:"\ud50c\ub7ab\ud3fc \uc5c5\ub85c\ub4dc \ubc0f \uacf5\uac1c \uc77c\uc815 \uad00\ub9ac", freq:"\uc218\uc2dc" },
+    { id:"a8", name:"\uacc4\uc57d\uc11c \uad00\ub9ac", desc:"\uacc4\uc57d\uc11c \ud30c\uc77c \uc815\ub9ac \ubc0f \ud604\ud669 \uad00\ub9ac", freq:"\uc218\uc2dc" },
+    { id:"a9", name:"\uae30\uc548/\uc9c0\ucd9c\uacb0\uc758\uc11c \uc791\uc131", desc:"\uc608\uc0b0 \uc9d1\ud589 \uad00\ub828 \ub0b4\ubd80 \uacb0\uc7ac \uc11c\ub958 \uc791\uc131", freq:"\uc218\uc2dc" },
+  ]},
 };
 
-const TYPES = [
-  { key: "outsource", label: "외주", color: "#F87171", bg: "rgba(248,113,113,0.1)", border: "rgba(248,113,113,0.25)" },
-  { key: "freelance", label: "프리랜서", color: "#C084FC", bg: "rgba(192,132,252,0.1)", border: "rgba(192,132,252,0.25)" },
-  { key: "contract", label: "계약직", color: "#FBBF24", bg: "rgba(251,191,36,0.1)", border: "rgba(251,191,36,0.25)" },
-  { key: "auto", label: "자동화", color: "#34D399", bg: "rgba(52,211,153,0.1)", border: "rgba(52,211,153,0.25)" },
+var TYPES = [
+  { key:"outsource", label:"\uc678\uc8fc",    color:"var(--outsource)", bg:"var(--outsource-bg)", border:"var(--outsource-border)" },
+  { key:"freelance", label:"\ud504\ub9ac\ub79c\uc11c", color:"var(--freelance)", bg:"var(--freelance-bg)", border:"var(--freelance-border)" },
+  { key:"contract",  label:"\uacc4\uc57d\uc9c1",  color:"var(--contract)",  bg:"var(--contract-bg)",  border:"var(--contract-border)" },
+  { key:"auto",      label:"\uc790\ub3d9\ud654",  color:"var(--auto)",      bg:"var(--auto-bg)",      border:"var(--auto-border)" },
 ];
 
-const STORAGE_KEY = "task-optimizer-shared-v1";
-const totalTasks = Object.values(TEAMS).reduce((a, t) => a + t.tasks.length, 0);
+var totalTasks = Object.values(TEAMS).reduce(function(a, t) { return a + t.tasks.length; }, 0);
+var selections = {};
+var notes = {};
+var savedAt = null;
+var activeTeam = "marketing";
+var currentView = "select";
+var isOnline = false;
 
-export default function App() {
-  const [view, setView] = useState("select");
-  const [activeTeam, setActiveTeam] = useState("marketing");
-  const [selections, setSelections] = useState({});
-  const [notes, setNotes] = useState({});
-  const [savedAt, setSavedAt] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState(null);
-  const [mobileMenu, setMobileMenu] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const result = await window.storage.get(STORAGE_KEY, true);
-        if (result) {
-          const d = JSON.parse(result.value);
-          setSelections(d.selections || {});
-          setNotes(d.notes || {});
-          setSavedAt(d.savedAt || null);
-        }
-      } catch (_) {}
-      setLoading(false);
-    })();
-  }, []);
-
-  const showToast = useCallback((msg, type = "success") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 2400);
-  }, []);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const now = new Date().toLocaleString("ko-KR");
-      await window.storage.set(STORAGE_KEY, JSON.stringify({ selections, notes, savedAt: now }), true);
-      setSavedAt(now);
-      showToast("저장 완료 — 링크를 공유하면 누구나 확인 가능합니다");
-    } catch (_) {
-      showToast("저장 실패. 다시 시도해주세요.", "error");
+// ═══ Init ═══
+async function init() {
+  try {
+    var rows = await supaFetch("GET");
+    if (rows && rows.length > 0) {
+      var d = rows[0];
+      selections = d.selections || {};
+      notes = d.notes || {};
+      savedAt = d.updated_at ? new Date(d.updated_at).toLocaleString("ko-KR") : null;
+      isOnline = true;
     }
-    setSaving(false);
-  };
-
-  const handleRefresh = async () => {
+  } catch (e) {
+    console.error("Supabase load error:", e);
     try {
-      const result = await window.storage.get(STORAGE_KEY, true);
-      if (result) {
-        const d = JSON.parse(result.value);
-        setSelections(d.selections || {});
-        setNotes(d.notes || {});
-        setSavedAt(d.savedAt || null);
-        showToast("최신 데이터를 불러왔습니다");
-      }
-    } catch (_) {
-      showToast("불러오기 실패", "error");
+      var raw = localStorage.getItem("task-opt-backup");
+      if (raw) { var d2 = JSON.parse(raw); selections = d2.selections || {}; notes = d2.notes || {}; savedAt = d2.savedAt || null; }
+    } catch(e2) {}
+    isOnline = false;
+  }
+  document.getElementById("loadingOverlay").style.display = "none";
+  document.getElementById("progressTotal").textContent = "/" + totalTasks;
+  updateSyncStatus();
+  if (savedAt) document.getElementById("savedTime").textContent = savedAt;
+  renderTeamTabs();
+  renderTaskList();
+}
+
+function updateSyncStatus() {
+  var dot = document.getElementById("syncDot");
+  var txt = document.getElementById("syncText");
+  if (isOnline) { dot.className = "sync-dot online"; txt.textContent = "Supabase \uc5f0\uacb0\ub428 \u2014 \uc2e4\uc2dc\uac04 \uacf5\uc720 \ud65c\uc131"; }
+  else { dot.className = "sync-dot offline"; txt.textContent = "\uc624\ud504\ub77c\uc778 \u2014 \ub85c\uceec \uc800\uc7a5 \ubaa8\ub4dc"; }
+}
+
+var toastTimer = null;
+function showToast(msg, type) {
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "toast " + (type || "success");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.className = "toast hidden"; }, 2800);
+}
+
+async function saveData() {
+  var btn = document.getElementById("saveBtn");
+  btn.disabled = true; btn.textContent = "\uc800\uc7a5 \uc911...";
+  localStorage.setItem("task-opt-backup", JSON.stringify({ selections: selections, notes: notes, savedAt: new Date().toLocaleString("ko-KR") }));
+  try {
+    await supaFetch("PATCH", { selections: selections, notes: notes, updated_at: new Date().toISOString() });
+    var now = new Date().toLocaleString("ko-KR");
+    savedAt = now; document.getElementById("savedTime").textContent = now;
+    isOnline = true; updateSyncStatus();
+    showToast("\uc800\uc7a5 \uc644\ub8cc \u2014 URL\uc744 \uacf5\uc720\ud558\uba74 \ub204\uad6c\ub098 \ud655\uc778 \uac00\ub2a5", "success");
+  } catch (e) {
+    console.error("Save error:", e);
+    isOnline = false; updateSyncStatus();
+    showToast("Supabase \uc800\uc7a5 \uc2e4\ud328 \u2014 \ub85c\uceec\uc5d0 \ubc31\uc5c5\ub428", "error");
+  }
+  btn.disabled = false; btn.textContent = "\uc800\uc7a5";
+}
+
+async function refreshData() {
+  try {
+    var rows = await supaFetch("GET");
+    if (rows && rows.length > 0) {
+      var d = rows[0]; selections = d.selections || {}; notes = d.notes || {};
+      savedAt = d.updated_at ? new Date(d.updated_at).toLocaleString("ko-KR") : null;
+      isOnline = true; updateSyncStatus();
+      if (savedAt) document.getElementById("savedTime").textContent = savedAt;
+      renderTeamTabs(); renderTaskList();
+      if (currentView === "summary") renderSummary();
+      showToast("\ucd5c\uc2e0 \ub370\uc774\ud130\ub97c \uc11c\ubc84\uc5d0\uc11c \ubd88\ub7ec\uc654\uc2b5\ub2c8\ub2e4", "success");
     }
-  };
+  } catch (e) { isOnline = false; updateSyncStatus(); showToast("\uc11c\ubc84 \uc5f0\uacb0 \uc2e4\ud328", "error"); }
+}
 
-  const toggleType = (taskId, type) => {
-    setSelections(prev => ({ ...prev, [taskId]: prev[taskId] === type ? null : type }));
-  };
+function toggleView() {
+  currentView = currentView === "select" ? "summary" : "select";
+  document.getElementById("selectView").style.display = currentView === "select" ? "" : "none";
+  document.getElementById("summaryView").style.display = currentView === "summary" ? "" : "none";
+  document.getElementById("viewToggle").textContent = currentView === "select" ? "\uc694\uc57d \ubcf4\uae30" : "\ubd84\ub958 \uc785\ub825";
+  if (currentView === "summary") renderSummary();
+}
 
-  const setNote = (taskId, val) => {
-    setNotes(prev => ({ ...prev, [taskId]: val }));
-  };
+function toggleType(taskId, type) { selections[taskId] = selections[taskId] === type ? null : type; renderTeamTabs(); renderTaskList(); }
+function setNote(taskId, val) { notes[taskId] = val; }
+function esc(s) { return (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function getSelectedCount() { return Object.values(selections).filter(Boolean).length; }
 
-  const selectedCount = Object.values(selections).filter(Boolean).length;
+function renderTeamTabs() {
+  var wrap = document.getElementById("teamTabs"); var html = "";
+  Object.entries(TEAMS).forEach(function(entry) {
+    var key = entry[0], team = entry[1];
+    var done = team.tasks.filter(function(t) { return selections[t.id]; }).length;
+    var isActive = activeTeam === key;
+    var border = isActive ? "border-color:" + team.accent + "40" : "";
+    html += '<button class="team-tab' + (isActive?" active":"") + '" style="' + border + '" onclick="activeTeam=\'' + key + '\';renderTeamTabs();renderTaskList();">' +
+      '<div class="tab-label" style="' + (isActive?"color:"+team.accent:"") + '">' + team.label + '</div>' +
+      '<div class="tab-count">' + done + '/' + team.tasks.length + '</div></button>';
+  });
+  wrap.innerHTML = html;
+}
 
-  const summaryByType = TYPES.reduce((acc, t) => { acc[t.key] = []; return acc; }, {});
-  Object.entries(TEAMS).forEach(([key, team]) => {
-    team.tasks.forEach(task => {
-      const type = selections[task.id];
-      if (type) summaryByType[type].push({ ...task, teamKey: key, teamLabel: team.label, teamAccent: team.accent });
+function renderTaskList() {
+  var team = TEAMS[activeTeam]; var wrap = document.getElementById("taskList");
+  var count = getSelectedCount();
+  document.getElementById("progressDone").textContent = count;
+  document.getElementById("progressFill").style.width = (count/totalTasks*100) + "%";
+  var html = "";
+  team.tasks.forEach(function(task, i) {
+    var sel = selections[task.id]; var selType = TYPES.find(function(t) { return t.key === sel; });
+    var borderColor = selType ? selType.border : "var(--border)";
+    var badgeHTML = selType ? '<span class="sel-badge" style="background:'+selType.bg+';color:'+selType.color+';border:1px solid '+selType.border+'">'+selType.label+'</span>' : "";
+    var btnsHTML = TYPES.map(function(t) {
+      var isAct = sel === t.key;
+      var style = isAct ? "background:"+t.bg+";color:"+t.color+";border-color:"+t.border+";font-weight:700" : "";
+      return '<button class="type-btn'+(isAct?" active":"")+'" style="'+style+'" onclick="toggleType(\''+task.id+"','"+t.key+'\')">'+t.label+'</button>';
+    }).join("");
+    var noteHTML = sel ? '<div class="task-note"><input type="text" value="'+esc(notes[task.id]||"")+'" placeholder="\uba54\ubaa8 (\uc120\uc815 \uc774\uc720, \ub2f4\ub2f9\uc790 \ub4f1)" onchange="setNote(\''+task.id+'\', this.value)"></div>' : "";
+    html += '<div class="task-card" style="border-color:'+borderColor+';animation-delay:'+i*0.03+'s">' +
+      '<div class="task-top"><div class="task-info"><div class="task-name-row">' +
+      '<span class="task-name">'+task.name+'</span><span class="freq-badge">'+task.freq+'</span>'+badgeHTML+'</div>' +
+      '<div class="task-desc">'+task.desc+'</div></div><div class="type-btns">'+btnsHTML+'</div></div>'+noteHTML+'</div>';
+  });
+  wrap.innerHTML = html;
+}
+
+function renderSummary() {
+  var wrap = document.getElementById("summaryView");
+  var byType = {}; TYPES.forEach(function(t) { byType[t.key] = []; });
+  Object.entries(TEAMS).forEach(function(entry) {
+    var key = entry[0], team = entry[1];
+    team.tasks.forEach(function(task) {
+      var t = selections[task.id];
+      if (t) byType[t].push({ id:task.id, name:task.name, desc:task.desc, freq:task.freq, teamKey:key, teamLabel:team.label, teamAccent:team.accent });
     });
   });
-
-  const unselected = Object.entries(TEAMS).flatMap(([key, team]) =>
-    team.tasks.filter(t => !selections[t.id]).map(t => ({ ...t, teamKey: key, teamLabel: team.label, teamAccent: team.accent }))
-  );
-
-  if (loading) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0A0A0F", color: "#525264", fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <div style={{ textAlign: "center" }}>
-        <div style={{ width: 32, height: 32, border: "2px solid #2A2A3C", borderTopColor: "#7C7C9A", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }} />
-        <div style={{ fontSize: 13, letterSpacing: "0.05em" }}>데이터 불러오는 중</div>
-      </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
-  );
-
-  const team = TEAMS[activeTeam];
-
-  return (
-    <div style={{ fontFamily: "'Noto Sans KR', -apple-system, sans-serif", minHeight: "100vh", background: "#0A0A0F", color: "#E2E2EA" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=DM+Serif+Display&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::selection { background: rgba(192,132,252,0.3); }
-        input::placeholder { color: #3D3D50; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-        .fade-item { animation: fadeIn 0.3s ease both; }
-        .card-hover { transition: border-color 0.2s, box-shadow 0.2s; }
-        .card-hover:hover { border-color: #2A2A3C !important; }
-        .btn-base { border: none; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-        .btn-base:active { transform: scale(0.97); }
-        @media (max-width: 640px) {
-          .desktop-only { display: none !important; }
-          .mobile-team-grid { grid-template-columns: 1fr 1fr !important; }
-        }
-        @media (min-width: 641px) {
-          .mobile-only { display: none !important; }
-        }
-      `}</style>
-
-      {/* ── HEADER ── */}
-      <header style={{ background: "#0E0E16", borderBottom: "1px solid #1A1A28", position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(12px)" }}>
-        <div style={{ maxWidth: 1080, margin: "0 auto", padding: "0 20px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 28, height: 28, background: "linear-gradient(135deg, #C084FC, #60A5FA)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ width: 10, height: 10, borderRadius: 2, border: "2px solid white" }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#E2E2EA", letterSpacing: "-0.01em" }}>업무 최적화 보고</div>
-              <div className="desktop-only" style={{ fontSize: 10, color: "#525264" }}>공유 가능 · 실시간 저장</div>
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            {savedAt && <div className="desktop-only" style={{ fontSize: 10, color: "#3D3D50", marginRight: 4 }}>{savedAt}</div>}
-            <button className="btn-base" onClick={handleRefresh} style={{ padding: "6px 12px", borderRadius: 5, background: "#1A1A28", color: "#7C7C9A", fontSize: 11, fontWeight: 600 }} title="최신 데이터 불러오기">
-              새로고침
-            </button>
-            <button className="btn-base" onClick={() => setView(v => v === "select" ? "summary" : "select")} style={{ padding: "6px 14px", borderRadius: 5, background: "#1A1A28", color: "#A0A0B8", fontSize: 11, fontWeight: 600 }}>
-              {view === "select" ? "요약 보기" : "분류 입력"}
-            </button>
-            <button className="btn-base" onClick={handleSave} disabled={saving} style={{ padding: "6px 16px", borderRadius: 5, background: saving ? "#1A1A28" : "linear-gradient(135deg, #7C3AED, #6366F1)", color: "#fff", fontSize: 11, fontWeight: 700, opacity: saving ? 0.5 : 1 }}>
-              {saving ? "저장 중..." : "저장"}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* ── TOAST ── */}
-      {toast && (
-        <div style={{ position: "fixed", top: 68, right: 16, zIndex: 999, background: toast.type === "error" ? "#2D1215" : "#0E1A14", border: `1px solid ${toast.type === "error" ? "#5C2023" : "#1A3D2A"}`, color: toast.type === "error" ? "#F87171" : "#34D399", padding: "10px 18px", borderRadius: 6, fontSize: 12, fontWeight: 600, animation: "toastIn 0.3s ease", maxWidth: "calc(100vw - 32px)" }}>
-          {toast.msg}
-        </div>
-      )}
-
-      {view === "select" ? (
-        <div style={{ maxWidth: 1080, margin: "0 auto", padding: "20px 16px 80px" }}>
-          {/* Cover Card */}
-          <div style={{ background: "linear-gradient(135deg, #12121C 0%, #181828 100%)", border: "1px solid #1F1F32", borderRadius: 10, padding: "28px 24px 24px", marginBottom: 20 }}>
-            <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "#3D3D50", fontWeight: 600, marginBottom: 12 }}>Task Classification System</div>
-            <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "clamp(22px, 5vw, 32px)", color: "#E2E2EA", fontWeight: 400, lineHeight: 1.3, marginBottom: 8 }}>
-              단순업무 인력 최적화
-            </h1>
-            <p style={{ fontSize: 13, color: "#525264", lineHeight: 1.7, maxWidth: 480 }}>
-              각 업무별 외주 · 프리랜서 · 계약직 · 자동화 유형을 선택하세요.<br />
-              저장 시 모든 공유 대상자가 동일 데이터를 확인합니다.
-            </p>
-            {/* Progress */}
-            <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 14 }}>
-              <div style={{ flex: 1, height: 3, background: "#1A1A28", borderRadius: 2, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${(selectedCount / totalTasks) * 100}%`, background: "linear-gradient(90deg, #7C3AED, #60A5FA)", borderRadius: 2, transition: "width 0.4s ease" }} />
-              </div>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#7C7C9A", whiteSpace: "nowrap" }}>
-                {selectedCount}<span style={{ color: "#3D3D50" }}>/{totalTasks}</span>
-              </span>
-            </div>
-          </div>
-
-          {/* Team Tabs */}
-          <div className="mobile-team-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 16 }}>
-            {Object.entries(TEAMS).map(([key, t]) => {
-              const done = t.tasks.filter(tk => selections[tk.id]).length;
-              const active = activeTeam === key;
-              return (
-                <button key={key} className="btn-base" onClick={() => { setActiveTeam(key); setMobileMenu(false); }}
-                  style={{ padding: "14px 10px", borderRadius: 8, background: active ? "#1A1A28" : "#0E0E16", border: `1px solid ${active ? t.accent + "40" : "#1A1A28"}`, textAlign: "center" }}>
-                  <div style={{ fontSize: 12, fontWeight: active ? 700 : 500, color: active ? t.accent : "#525264", marginBottom: 3 }}>{t.label}</div>
-                  <div style={{ fontSize: 10, color: active ? "#525264" : "#2A2A3C" }}>{done}/{t.tasks.length}</div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Task List */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {team.tasks.map((task, i) => {
-              const sel = selections[task.id];
-              const selType = TYPES.find(t => t.key === sel);
-              return (
-                <div key={task.id} className="card-hover fade-item" style={{ background: "#0E0E16", border: `1px solid ${selType ? selType.border : "#1A1A28"}`, borderRadius: 8, padding: "14px 16px", animationDelay: `${i * 0.03}s` }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                    <div style={{ flex: 1, minWidth: 180 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 3 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#D0D0DC" }}>{task.name}</span>
-                        <span style={{ fontSize: 10, background: "#1A1A28", color: "#525264", padding: "2px 8px", borderRadius: 3 }}>{task.freq}</span>
-                        {selType && (
-                          <span style={{ fontSize: 10, background: selType.bg, color: selType.color, padding: "2px 9px", borderRadius: 3, fontWeight: 700, border: `1px solid ${selType.border}` }}>
-                            {selType.label}
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: 11, color: "#3D3D50" }}>{task.desc}</div>
-                    </div>
-                    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                      {TYPES.map(t => (
-                        <button key={t.key} className="btn-base" onClick={() => toggleType(task.id, t.key)}
-                          style={{ padding: "6px 12px", borderRadius: 5, fontSize: 11, fontWeight: sel === t.key ? 700 : 500, background: sel === t.key ? t.bg : "#12121C", color: sel === t.key ? t.color : "#3D3D50", border: `1px solid ${sel === t.key ? t.border : "#1A1A28"}` }}>
-                          {t.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  {sel && (
-                    <div style={{ marginTop: 10 }}>
-                      <input
-                        value={notes[task.id] || ""}
-                        onChange={e => setNote(task.id, e.target.value)}
-                        placeholder="메모 (선정 이유, 담당자 등)"
-                        style={{ width: "100%", padding: "7px 12px", borderRadius: 5, border: "1px solid #1A1A28", fontSize: 11, color: "#A0A0B8", outline: "none", background: "#12121C", fontFamily: "inherit" }}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ) : (
-        /* ═══ SUMMARY VIEW ═══ */
-        <div style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px 80px" }}>
-          {/* Cover */}
-          <div style={{ background: "linear-gradient(135deg, #12121C 0%, #181828 100%)", border: "1px solid #1F1F32", borderRadius: 10, padding: "28px 24px", marginBottom: 24 }}>
-            <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "#3D3D50", fontWeight: 600, marginBottom: 8 }}>Summary Report</div>
-            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "clamp(20px, 4vw, 28px)", color: "#E2E2EA", fontWeight: 400, marginBottom: 6 }}>
-              인력 최적화 요약 보고
-            </h2>
-            <p style={{ fontSize: 12, color: "#3D3D50" }}>
-              {selectedCount}개 업무 분류 완료{savedAt && ` · 마지막 저장: ${savedAt}`}
-            </p>
-          </div>
-
-          {/* Stat Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 32 }}>
-            {TYPES.map(t => (
-              <div key={t.key} style={{ background: "#0E0E16", border: `1px solid ${t.border}`, borderRadius: 8, padding: "20px 16px", textAlign: "center" }}>
-                <div style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 700, color: t.color, marginBottom: 8 }}>{t.label}</div>
-                <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 36, color: t.color, lineHeight: 1 }}>{summaryByType[t.key].length}</div>
-                <div style={{ fontSize: 10, color: "#2A2A3C", marginTop: 4 }}>/ {totalTasks}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Type Sections */}
-          {TYPES.map(t => {
-            const items = summaryByType[t.key];
-            if (!items.length) return null;
-            return (
-              <div key={t.key} style={{ marginBottom: 28 }} className="fade-item">
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, paddingBottom: 10, borderBottom: `1px solid ${t.border}` }}>
-                  <div style={{ width: 3, height: 20, borderRadius: 2, background: t.color }} />
-                  <h3 style={{ fontSize: 15, fontWeight: 800, color: t.color }}>{t.label}</h3>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: t.color, background: t.bg, border: `1px solid ${t.border}`, padding: "2px 10px", borderRadius: 4, marginLeft: "auto" }}>{items.length}건</span>
-                </div>
-                {/* Table */}
-                <div style={{ background: "#0E0E16", border: "1px solid #1A1A28", borderRadius: 8, overflow: "hidden" }}>
-                  {/* Header */}
-                  <div className="desktop-only" style={{ display: "grid", gridTemplateColumns: "110px 1fr 70px 180px", padding: "10px 16px", borderBottom: "1px solid #1A1A28" }}>
-                    {["소속", "업무명", "빈도", "메모"].map(h => (
-                      <div key={h} style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 700, color: "#3D3D50" }}>{h}</div>
-                    ))}
-                  </div>
-                  {/* Rows */}
-                  {items.map((task, i) => (
-                    <div key={task.id} style={{ borderBottom: i < items.length - 1 ? "1px solid #12121C" : "none" }}>
-                      {/* Desktop */}
-                      <div className="desktop-only" style={{ display: "grid", gridTemplateColumns: "110px 1fr 70px 180px", padding: "12px 16px", alignItems: "center" }}>
-                        <div>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: task.teamAccent, background: task.teamAccent + "15", padding: "2px 8px", borderRadius: 3 }}>{task.teamLabel}</span>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: "#D0D0DC" }}>{task.name}</div>
-                          <div style={{ fontSize: 10, color: "#2A2A3C", marginTop: 1 }}>{task.desc}</div>
-                        </div>
-                        <div style={{ fontSize: 11, color: "#525264" }}>{task.freq}</div>
-                        <div style={{ fontSize: 11, color: "#3D3D50", fontStyle: notes[task.id] ? "normal" : "italic" }}>{notes[task.id] || "—"}</div>
-                      </div>
-                      {/* Mobile */}
-                      <div className="mobile-only" style={{ padding: "12px 16px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: task.teamAccent, background: task.teamAccent + "15", padding: "2px 8px", borderRadius: 3 }}>{task.teamLabel}</span>
-                          <span style={{ fontSize: 10, color: "#3D3D50" }}>{task.freq}</span>
-                        </div>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: "#D0D0DC" }}>{task.name}</div>
-                        {notes[task.id] && <div style={{ fontSize: 11, color: "#3D3D50", marginTop: 4 }}>{notes[task.id]}</div>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Unselected */}
-          {unselected.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "28px", border: "1px solid rgba(52,211,153,0.2)", background: "rgba(52,211,153,0.05)", borderRadius: 8, marginTop: 20 }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: "#34D399" }}>모든 업무가 분류 완료되었습니다</p>
-            </div>
-          ) : (
-            <div style={{ marginTop: 20, paddingTop: 24, borderTop: "1px solid #1A1A28" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                <div style={{ width: 3, height: 20, borderRadius: 2, background: "#2A2A3C" }} />
-                <h3 style={{ fontSize: 15, fontWeight: 800, color: "#3D3D50" }}>미분류 업무</h3>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#3D3D50", background: "#1A1A28", padding: "2px 10px", borderRadius: 4, marginLeft: "auto" }}>{unselected.length}건</span>
-              </div>
-              <div style={{ background: "#0E0E16", border: "1px solid #1A1A28", borderRadius: 8, overflow: "hidden" }}>
-                {unselected.map((task, i) => (
-                  <div key={task.id} style={{ padding: "10px 16px", borderBottom: i < unselected.length - 1 ? "1px solid #12121C" : "none", opacity: 0.45, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: task.teamAccent, background: task.teamAccent + "15", padding: "2px 8px", borderRadius: 3 }}>{task.teamLabel}</span>
-                    <span style={{ fontSize: 12, color: "#525264" }}>{task.name}</span>
-                    <span style={{ fontSize: 10, color: "#2A2A3C", marginLeft: "auto" }}>{task.freq}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+  var count = getSelectedCount(); var html = "";
+  html += '<div class="cover"><div class="cover-label">Summary Report</div>' +
+    '<h1 style="font-size:clamp(20px,4vw,28px)">\uc778\ub825 \ucd5c\uc801\ud654 \uc694\uc57d \ubcf4\uace0</h1>' +
+    '<p style="font-size:12px;color:var(--text-faint)">'+count+'\uac1c \uc5c5\ubb34 \ubd84\ub958 \uc644\ub8cc'+(savedAt?" \xb7 \ub9c8\uc9c0\ub9c9 \uc800\uc7a5: "+savedAt:"")+'</p></div>';
+  html += '<div class="stat-grid">';
+  TYPES.forEach(function(t) {
+    html += '<div class="stat-card" style="border:1px solid '+t.border+'"><div class="stat-type" style="color:'+t.color+'">'+t.label+'</div>' +
+      '<div class="stat-num" style="color:'+t.color+'">'+byType[t.key].length+'</div><div class="stat-total">/ '+totalTasks+'</div></div>';
+  });
+  html += '</div>';
+  TYPES.forEach(function(t) {
+    var items = byType[t.key]; if (!items.length) return;
+    html += '<div class="section-block"><div class="section-head" style="border-bottom:1px solid '+t.border+'">' +
+      '<div class="section-marker" style="background:'+t.color+'"></div><h3 style="color:'+t.color+'">'+t.label+'</h3>' +
+      '<span class="section-count" style="color:'+t.color+';background:'+t.bg+';border:1px solid '+t.border+'">'+items.length+'\uac74</span></div>' +
+      '<div class="data-table"><div class="table-header"><div>\uc18c\uc18d</div><div>\uc5c5\ubb34\uba85</div><div>\ube48\ub3c4</div><div>\uba54\ubaa8</div></div>';
+    items.forEach(function(task) {
+      html += '<div class="table-row"><div><span class="team-badge" style="color:'+task.teamAccent+';background:'+task.teamAccent+'15">'+task.teamLabel+'</span></div>' +
+        '<div><div class="row-name">'+task.name+'</div><div class="row-desc">'+task.desc+'</div></div>' +
+        '<div class="row-freq">'+task.freq+'</div><div class="row-note">'+(notes[task.id]?esc(notes[task.id]):"\u2014")+'</div></div>';
+      html += '<div class="table-row-mobile"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
+        '<span class="team-badge" style="color:'+task.teamAccent+';background:'+task.teamAccent+'15">'+task.teamLabel+'</span>' +
+        '<span style="font-size:10px;color:var(--text-faint)">'+task.freq+'</span></div>' +
+        '<div class="row-name">'+task.name+'</div>'+(notes[task.id]?'<div style="font-size:11px;color:var(--text-faint);margin-top:4px">'+esc(notes[task.id])+'</div>':'')+'</div>';
+    });
+    html += '</div></div>';
+  });
+  var unsel = [];
+  Object.entries(TEAMS).forEach(function(entry) {
+    var key = entry[0], team = entry[1];
+    team.tasks.forEach(function(task) {
+      if (!selections[task.id]) unsel.push({ name:task.name, freq:task.freq, teamLabel:team.label, teamAccent:team.accent });
+    });
+  });
+  if (unsel.length === 0) {
+    html += '<div class="complete-banner"><p>\ubaa8\ub4e0 \uc5c5\ubb34\uac00 \ubd84\ub958 \uc644\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4</p></div>';
+  } else {
+    html += '<div class="unselected-section"><div class="section-head" style="border-bottom:1px solid var(--border)">' +
+      '<div class="section-marker" style="background:var(--text-faint)"></div><h3 style="color:var(--text-ghost)">\ubbf8\ubd84\ub958 \uc5c5\ubb34</h3>' +
+      '<span class="section-count" style="color:var(--text-faint);background:var(--border)">'+unsel.length+'\uac74</span></div><div class="data-table">';
+    unsel.forEach(function(task) {
+      html += '<div class="unselected-row"><span class="team-badge" style="color:'+task.teamAccent+';background:'+task.teamAccent+'15">'+task.teamLabel+'</span>' +
+        '<span style="font-size:12px;color:var(--text-faint)">'+task.name+'</span>' +
+        '<span style="font-size:10px;color:var(--text-void);margin-left:auto">'+task.freq+'</span></div>';
+    });
+    html += '</div></div>';
+  }
+  wrap.innerHTML = html;
 }
+
+init();
+</script>
+</body>
+</html>
